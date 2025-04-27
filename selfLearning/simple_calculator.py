@@ -2,7 +2,6 @@
 Simple calculater that takes two number as input and take one mathmatical operater and perform the calculation and display output:
 '''
 
-from curses.ascii import isdigit
 import time
 import random
 import os
@@ -71,7 +70,7 @@ def value():
 def asking_validity_input():
     timer()
     num1 = input("\nEnter the first number: ")
-    num2 = input("\nEnter the second numner: ")
+    num2 = input("Enter the second numner: ")
     a = True
     while a:
         if num1 == "" or not num1.isdigit():
@@ -104,6 +103,8 @@ def multiply_operation():
 
 def divide_operation():
     num1, num2 = asking_validity_input()
+    while num2 == 0:
+        num2 = float(input("\nNumber cannot be divide by zero. Please input anothe number: "))
     timer()
     return num1 / num2
 
