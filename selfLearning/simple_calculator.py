@@ -74,11 +74,11 @@ def asking_validity_input():
     num2 = input("\nEnter the second numner: ")
     a = True
     while a:
-        if num1 == "" or not num1.isdigit:
+        if num1 == "" or not num1.isdigit():
             timer()
             print("Invalid first value")
             num1 = input("\nEnter the first number: ")
-        elif num2 == "" or not num2.isdigit:
+        elif num2 == "" or not num2.isdigit():
             timer()
             print("Invalid second value")
             num2 = input("\nEnter the second number: ")
