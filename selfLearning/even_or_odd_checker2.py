@@ -34,7 +34,7 @@ def clear_screen():
     # nt means window operating system
     # posix means mac or linux operating system
     if os.name == "nt": 
-        os.system("clr")
+        os.system("cls")
     else:
         os.system("clear")
 
@@ -80,6 +80,6 @@ def no_input():
     return
             
 
-
-
 main()
+
+# done

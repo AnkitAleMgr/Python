@@ -12,9 +12,7 @@ def odd_even():
 
     return a
 
-
 a = True
-
 
 while a:
     user_Input = input("Enter a number To find if it is odd or even: \n")

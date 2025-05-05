@@ -109,5 +109,5 @@ def divide_operation():
     return num1 / num2
 
 
-
-main()
+if __name__ == "__main__":
+    main()

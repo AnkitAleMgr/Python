@@ -1,6 +1,6 @@
 import random
 
-print("Guess the b number in dice:")
+print("Guess the number in dice:")
 print("Are you ready to play")
 
 a = True
@@ -14,6 +14,9 @@ def roll_dice():
         
         if guess == "":
             print("\nPlease enter a number.")
+
+        elif not guess.isdigit():
+            print("\nThat's not a valid number.")
         
         elif int(guess) == random_Number:
             print("\nYou have guess the right number.")
@@ -28,7 +31,6 @@ while a:
     
     if x == "":
         print("\nYou cannot put empty.")
-        x = ""
         
     elif x.lower() == "yes":
         print("\nLet start")
