@@ -1,12 +1,11 @@
 
 def odd_even():
 
-    a = ""
+    # a = ""
     value = int(user_Input)
 
     if value % 2:
         a = "\nEven"
-
     else:
         a = "\nOdd"
 

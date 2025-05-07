@@ -5,3 +5,5 @@ def screenCleaner():
         os.system("clr")
     else:
         os.system("Clear")
+
+

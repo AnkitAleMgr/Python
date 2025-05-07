@@ -1,9 +1,6 @@
 import random
-import time
-from Animation.Timer import Processing_animation
+from Animation.Timer import Processing_animation, short_processing
 from Animation.ClearScreen import screenCleaner
-
-
 
 def main():
     length = length_asker()
@@ -25,8 +22,7 @@ def password_generator(length):
     for i in range(length):
         # password = print(password + str(random.randint(0,9)))
         password = password + str(random.randint(0,9))
-        print("processing..")
-        time.sleep(0.5)
+        short_processing()
         print(password)
 
     return password

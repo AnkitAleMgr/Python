@@ -6,16 +6,12 @@ import time
 import random
 import os
 
+from Animation.ClearScreen import screenCleaner
+
 
 def main():
     value()
     recheck()
-
-def screen_cleaner():
-    if os.name == "nt":
-        os.system("clr")
-    else:
-        os.system("clear")
 
 def timer():
     a = 0
@@ -41,7 +37,7 @@ def recheck():
             print("Clearing....")
             time.sleep(0.8)
             print("Clearing....")
-            screen_cleaner()
+            screenCleaner()
             a = False
         else:
             timer()
