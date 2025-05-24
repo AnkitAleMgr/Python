@@ -1,3 +1,5 @@
+# note: .center for center, .ljust for left and rjust for right
+
 b = "Title"
 space = 18
 no_of_colums = 2
