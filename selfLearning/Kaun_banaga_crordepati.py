@@ -9,7 +9,7 @@ def amount_multiplier(amount):
     
     return amount
 
-
+ 
 questions = ("What language are you using " , "Where is great wall of china located ", "What color is the sky ")
 correct_answers = ("Python" , "China", "Blue")
 options =("(Python, Java, JavaScript, HTML)","(Nepal, India, China, Pakistan)", "(Red, Blue, Green, Yellow)") 
@@ -33,6 +33,6 @@ try:
             print("your current amount is " + str(amount) + "\n" )
             
     print("Your final amount is :", amount)
-    
+     
 except:
     traceback.print_exc()
