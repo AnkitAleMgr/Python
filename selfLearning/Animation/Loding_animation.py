@@ -7,7 +7,7 @@ def advance_loding_animation():
     for i in range(loop):
         display = "Processing"
         for i in range(5):
-            time.sleep(0.4)
+            time.sleep(0.5)
             print(f"\r{display:<20}", end="", flush=True)
             display += "."
     print("\r", end="", flush=True)
