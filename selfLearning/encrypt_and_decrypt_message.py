@@ -1,5 +1,4 @@
 from Animation.Loding_animation import advance_loding_animation
-from pickle import TRUE
 import traceback, string, random
 
 # function: 
@@ -19,7 +18,7 @@ def encrypt():
             # asking message/input from the user
             print("Enter the message you want to encrypt:")
             msg = input("-> ")
-            advance_loding_animation()
+            # advance_loding_animation()
 
             # checking it the input are empty or equals to 1
             if msg == "" or len(msg) == 1:
@@ -82,7 +81,7 @@ def decrypt():
             # asking encrpted message from user
             print("Enter encrypt message your want to decrypt:")
             msg = input("-> ")
-            advance_loding_animation()
+            # advance_loding_animation()
 
             # checking if the input is empty or not
             if msg == "":
@@ -154,15 +153,15 @@ try:
         print()
 
         if choice == "1":
-            # advance_loding_animation()
+            # # advance_loding_animation()
             message = encrypt()
             
         elif choice == "2":
-            # advance_loding_animation()
+            # # advance_loding_animation()
             message = decrypt()
             
         elif choice == "3":
-            advance_loding_animation()
+            # advance_loding_animation()
             print("Exit sucessfully")
             break
         else:   
