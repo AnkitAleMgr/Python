@@ -20,7 +20,9 @@ def main():
     tts = gTTS(text= text, lang= "en", slow=False)
     tts.save("output.mp3")
     print("Text has been convented into spe`ech as file named \" output.mp3\"")
-    os.system("afplay output.mp3")
+    # os.system("afplay output.mp3") for mac os
+    # os.system("mpg123 output.mp3") for linux
+    # os.system("start output.mp3") for window
     
 
 if __name__ == "__main__":
