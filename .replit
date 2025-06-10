@@ -3,7 +3,7 @@ run = "python selfLearning/main.py"
 
 [nix]
 channel = "stable-24_05"
-packages = ["lacus"]
+packages = ["lacus", "nmh"]
 
 [deployment]
 run = ["sh", "-c", "python main.py"]
