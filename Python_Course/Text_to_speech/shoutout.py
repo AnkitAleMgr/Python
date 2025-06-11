@@ -10,7 +10,7 @@ def main():
         text = input("Enter text to convert into speech: ")
         if text == "":
             print("It cannot be empty. Please enter the value again.")
-        elif not all(x.isalnum() or x.isspace() for x in text) or not any(x.isalpha() for x in text):
+        elif not all(x.isalnum() or x.isspace() for x in text) : # or not any(x.isalpha() for x in text)
             print("Invalid input please try again.")
         else:
             break
