@@ -1,0 +1,6 @@
+error: hello
+hello
+world
+error
+Error
+Error found error
