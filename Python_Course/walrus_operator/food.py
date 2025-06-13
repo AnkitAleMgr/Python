@@ -1,0 +1,3 @@
+foods = list()
+
+print(foods)
