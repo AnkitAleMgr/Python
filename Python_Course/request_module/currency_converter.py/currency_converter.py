@@ -5,6 +5,7 @@ API_KEY = "fca_live_i0YneoamzFb7uTYuEdvSbj5ZMx4eJ5JJXXsRB3zn"
 BASE_URL =  f"https://api.freecurrencyapi.com/v1/latest?apikey={API_KEY}"
 
 currency = ["USD", "CAD","EUR", "CNY"]
+print("available currency")
 
 
 def base_asker():
