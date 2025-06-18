@@ -5,7 +5,6 @@ API_KEY = "fca_live_i0YneoamzFb7uTYuEdvSbj5ZMx4eJ5JJXXsRB3zn"
 BASE_URL = f"https://api.freecurrencyapi.com/v1/latest?apikey={API_KEY}"
 QUIT_KEYWORD = ["Q", "QUIT", "EXIT"]
 
-# Fetch and extract available currencies
 available_currency = requests.get(BASE_URL).json()["data"]
 available_currency = list(available_currency.keys())
 
