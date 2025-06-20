@@ -105,8 +105,8 @@ def detail_retriver(end_point, name):
         print(i)
         for inner in data[i]:
             print(inner)
-            print()
-        
+            print() 
+            # fjalkfjajdlkfajf
 
 
 
