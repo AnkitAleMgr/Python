@@ -1,5 +1,7 @@
 from urllib import response
-import requests, os, difflib
+import requests
+import os
+import difflib
 from dotenv import load_dotenv
 
 # for acessing .env for data and url
