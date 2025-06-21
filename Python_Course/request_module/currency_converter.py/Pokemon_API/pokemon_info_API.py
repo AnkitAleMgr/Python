@@ -9,11 +9,6 @@ BASE_URL = os.getenv("base_url") #<-- use to get url from .env file using os
 # variable
 EXIT_KEYWORD = {"q","quit","exit","e"} # <-- set of key word used to quit
 
-# available_pokemon = requests.get("https://pokeapi.co/api/v2/pokemon?offset=0&limit=10")
-# available_pokemon_data = available_pokemon.json()
-# available_pokemon = [pokemon["name"] for pokemon in available_pokemon_data["results"]]
-
-
 # user dependent variable
 end_point = ""
 name_or_id = ""
@@ -88,25 +83,45 @@ def name_id_asker(end_point):
             print(f"Cannot find {end_point} named {name_id}, Do you mean {"".join(suggestion)}?") \
                 if suggestion else print(f"Cannot find {end_point} named {name_id}, No suggestion.")
             
-
-
 # function that retrive data form server
 def detail_retriver(end_point, name):
     # basic retriving data form server
     url = BASE_URL+"/"+end_point+"/"+name
     response = requests.get(url)
     data = response.json()
-    title = [topic for topic in data]
-    print(f"\n{title}\n{url}")
+    topics = [topic for topic in data]
+    # print(f"\n{topic}\n{url}")
+    # topics = ['abilities', 'base_experience', 'cries', 'forms', 'game_indices', 'height', 'held_items', 'id', 'is_default', 'location_area_encounters', 'moves', 'name', 'order', 'past_abilities', 'past_types', 'species', 'sprites', 'stats', 'types', 'weight']
+    new_topic = [topic.replace("_"," ") for topic in topics]
+    
+    # varibales
+    user_topic_choice = ""
 
-    # trying to print each data
-    for index, i in enumerate(title, start=0):
-        print(index, i)
-        print(i)
-        for inner in data[i]:
-            print(inner)
-            print() 
-            # fjalkfjajdlkfajf
+    while True:
+        print("\n"+"-"*214)
+        print("Available Topic:")
+        
+        print(", ".join(new_topic))
+
+        user_topic_choice = user_input("\nEnter the topic number you want: ").lower()
+        if user_topic_choice == "":
+            print("Invalid input.")
+        elif user_topic_choice in new_topic:
+            print(f"Topic {user_topic_choice} has be accepted.")
+            break 
+        else:
+            suggestion = difflib.get_close_matches(user_topic_choice, topics, n=1, cutoff=0.6)
+            print(f"There is no topic name {user_topic_choice}, Do you mean {"".join(suggestion).capitalize()}.") if suggestion else print(f"There is no topic name {user_topic_choice}, No suggestion.")
+        
+    value = data[user_topic_choice]
+    if isinstance(value, list):
+        for containt in value:
+            print(containt)
+    if isinstance(value, dict):
+        for i, j in value.items():
+            print(f"{i}: {j}")
+    else:
+        print(value)
 
 
 
