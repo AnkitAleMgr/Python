@@ -6,10 +6,11 @@ from dotenv import load_dotenv
 
 # for acessing .env for data and url
 load_dotenv() # <-- creating object
-BASE_UcRL = os.getenv("base_url") #<-- use to get url from .env file using os
+BASE_URL = os.getenv("base_url") #<-- use to get url from .env file using os
 
 # variable
 EXIT_KEYWORD = {"q","quit","exit","e"} # <-- set of key word used to quit
+CLEAR_KEYWORD = {"c", "clear", "clr"}
 
 # user dependent variable
 end_point = ""
@@ -26,6 +27,9 @@ def user_input(prompt):
             print("Exiting......")
             exit() # <-- it end the program
         # returning the valid user input
+        if name.lower() in CLEAR_KEYWORD:
+            os.system("clear")
+            continue
         return name.title()
     
 # for filter unecessery data by asking user endpoint 
@@ -60,7 +64,9 @@ def name_id_asker(end_point):
     response = requests.get(url)
     data = response.json()
     total_count = data["count"]
-    print(f"total_count = {total_count}")
+    print("\n"+"-"*214)
+    print(f"Total_{end_point}_count = {total_count}")
+    print("-"*214)
     new_url = BASE_URL+"/"+end_point.lower()+ f"?offset=0&limit={total_count}"
 
     available_name_id = requests.get(new_url)
@@ -72,16 +78,16 @@ def name_id_asker(end_point):
     # infinite loop to ask valid name form the user
     while True:
         # asking name or id from the user 
-        name_id = user_input(f"\nEnter the name of {end_point}: ")
+        name_id = user_input(f"\nEnter the name of {end_point}: ").lower()
         suggestion = difflib.get_close_matches(name_id, list(name_list), n=1, cutoff=0.6)
 
         if name_id == "":
             print("Invalid input")
         else:
-            if name_id.lower() in name_list:
+            if name_id in name_list:
                 print(f"\nName {name_id} accepted as end point of {end_point}")
-                print(BASE_URL+"/"+end_point+"/"+name_or_id)
-                return name_id.lower()
+                print(BASE_URL+"/"+end_point+"/"+name_id)
+                return name_id
             print(f"Cannot find {end_point} named {name_id}, Do you mean {"".join(suggestion)}?") \
                 if suggestion else print(f"Cannot find {end_point} named {name_id}, No suggestion.")
             
@@ -91,46 +97,56 @@ def detail_retriver(end_point, name):
     url = BASE_URL+"/"+end_point+"/"+name
     response = requests.get(url)
     data = response.json()
-    topics = [topic for topic in data]
-    # print(f"\n{topic}\n{url}")
+
+
+    topics = list(data.keys())
+    new_topics = [topic.replace("_"," ") for topic in topics]
     # topics = ['abilities', 'base_experience', 'cries', 'forms', 'game_indices', 'height', 'held_items', 'id', 'is_default', 'location_area_encounters', 'moves', 'name', 'order', 'past_abilities', 'past_types', 'species', 'sprites', 'stats', 'types', 'weight']
-    new_topic = [topic.replace("_"," ") for topic in topics]
     
     # varibales
     user_topic_choice = ""
 
-    while True:
-        print("\n"+"-"*214)
-        print("Available Topic:")
-        
-        print(", ".join(new_topic))
+    print("\n"+"-"*214)
+    print("Available Topic:")
+    print(", ".join(new_topics))
 
-        user_topic_choice = user_input("\nEnter the topic number you want: ").lower()
+    while True:
+        user_topic_choice = user_input("\nEnter the topic number you want: ").strip().lower().replace(" ", "_")
+        print(user_topic_choice)
+
         if user_topic_choice == "":
             print("Invalid input.")
-        elif user_topic_choice in new_topic:
+        elif user_topic_choice in topics:
             print(f"Topic {user_topic_choice} has be accepted.")
             break 
         else:
-            suggestion = difflib.get_close_matches(user_topic_choice, topics, n=1, cutoff=0.6)
+            suggestion = difflib.get_close_matches(user_topic_choice, new_topics, n=1, cutoff=0.6)
             print(f"There is no topic name {user_topic_choice}, Do you mean {"".join(suggestion).capitalize()}.") if suggestion else print(f"There is no topic name {user_topic_choice}, No suggestion.")
         
     value = data[user_topic_choice]
+
     if isinstance(value, list):
+        print("it is list")
         for containt in value:
             print(containt)
-    if isinstance(value, dict):
+
+    elif isinstance(value, dict):
+        print("it is dict")
         for i, j in value.items():
             print(f"{i}: {j}")
     else:
+        print("it is varibale,  value")
         print(value)
 
 
 
 def main():
-    # end_point = endpoint_asker()
-    # name = name_id_asker(end_point)
-    detail_retriver(end_point="pokemon", name="pikachu")
+    while True:
+        print("\n"+"-"*214)
+        end_point = endpoint_asker()
+        name = name_id_asker(end_point)
+        # detail_retriver(end_point="pokemon", name="pikachu")
+        detail_retriver(end_point, name)
     
 
 
