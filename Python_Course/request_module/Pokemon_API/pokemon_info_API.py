@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 # for acessing .env for data and url
 load_dotenv() # <-- creating object
-BASE_URL = os.getenv("base_url") #<-- use to get url from .env file using os
+BASE_UcRL = os.getenv("base_url") #<-- use to get url from .env file using os
 
 # variable
 EXIT_KEYWORD = {"q","quit","exit","e"} # <-- set of key word used to quit
