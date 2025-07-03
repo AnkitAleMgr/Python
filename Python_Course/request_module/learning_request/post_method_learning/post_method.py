@@ -2,20 +2,19 @@ import requests, os, traceback
 from dotenv import load_dotenv
 from enum import Enum
 
-
+# objects
 load_dotenv() # <-- creating object name load_dotenv() to acess .env file data
 
 # Access token imported from .env file
 ACCESS_TOKEN = os.getenv("ACCESS_TOKEN")
-# url/ Link
-BASE_URL = os.getenv("BASE_URL")
+BASE_URL = os.getenv("BASE_URL") # url/ Link
 
 # Varibale
 EXIT_KEYWORD = ("q","quit","e","exit") # <-- all the word that reqresent user quiting intenson
 length = 170 # <-- to change the length of outline
 
-# Enue to collect expected value/input
-class Gender(Enum):
+# Enum to collect expected value/input
+class Genders(Enum):
     MALE = "male"
     FEMALE = "female"
 class Status(Enum):
@@ -53,32 +52,57 @@ def input_empty_checker(name, email, gender, status):
         print("Input cannot be empty. Please input proper input.")
         name, email, gender, status = input_asker()
     return name, email, gender, status
-
-
 def proper_input_checker(name, email, gender, status):
     # constant varible
-    pass
+    while gender not in [gender.value for gender in Genders] or status not in [status.value for status in Status] or name.isdigit() or email.isdigit():
+        print("Value you provide is not matching expected. Re-enter with proper input.")
+        body_data()
+    return name, email, gender, status
 
-
-
+# main body
 def body_data():
     name, email, gender, status = input_asker()
     name, email, gender, status = input_empty_checker(name, email, gender, status)
-
+    name, email, gender, status = proper_input_checker(name, email, gender, status)
     
+    post_body = dict()
+    post_body["name"] = name
+    post_body["email"] = email
+    post_body["gender"] = gender
+    post_body["status"] = status
 
+    return post_body
 
+def post(header, body):
+    post_variable = requests.post(BASE_URL, headers = header, json= body)
 
-        
+    # trying to convert into json format
+    try:
+       response_data  = post_variable.json()
+    except ValueError:
+        print("❌ Invalid JSON response.")
+        return None
+    
+    # error code handeling
+    if response_data.status_code == 201:
+        up_vertical_line()
+        print(f"Individual name {body["name"]} has be added in database with id {(response_data.json())["id"]}: ")
+        print(response_data.json())
+        down_vertical_line()
+    elif response_data.status_code == 403:
+        up_vertical_line()
+        print("Access denide. Please check your given permission.")
+        down_vertical_line()
+    elif response_data.json()[0]["message"] == "has already been taken":
+        print(f"Individual name {body["name"]} has already been created. Please try puting new data.")
+    else:
+        print(f"Something went wrong. Error code {response_data.status_code}")
+    return response_data
 
 def main_operation():
     header = header_data()
-    body_data()
-
-
-
-
-
+    body = body_data()
+    post(header, body)
 
 
 def main():
