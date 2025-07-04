@@ -1,4 +1,4 @@
-import requests, os, traceback
+import requests, os
 from dotenv import load_dotenv
 from enum import Enum
 
