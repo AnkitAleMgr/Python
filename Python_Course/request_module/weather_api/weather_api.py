@@ -23,7 +23,13 @@ def custom_input(prompt): # <--custom input
         print("exiting...")
         exit()
     return value
+def input_empty_checker(value):
+    if value == "":
+        print("Input cannot be empty. Please re-enter.. ")
+        user_location()
+    return value
 
+# user dependent fucntion
 def user_endpoint():# <--to get endpoint from available end point
     # available endpoint
     available = {
@@ -47,10 +53,30 @@ def user_endpoint():# <--to get endpoint from available end point
     
     print(f"{user_end_point} accepted as valid endpoint.")
     return available[user_end_point]
+def user_location():# <--to get location detail from user   
+    location = custom_input("Please enter the location: ")
+    location = input_empty_checker(location)
+
+    print(f"{location} has been accepted as valid location.")
+    return location
+def user_params():# <--to get necessery params from user
+    
+
+    return
 
 
 def data_retriver(): # <-- requesting data form the server
     endpoint = user_endpoint()
+    location = user_location()
+    
+    user_params()
+
+    response = requests.get(url + endpoint ,key= API_KEY , q= location, timeout = (3, 10))
+
+    if response.status_code == 200:
+        pass
+    else:
+        print(f"Something went wrong {response.status_code}")
 
 
 # main section
