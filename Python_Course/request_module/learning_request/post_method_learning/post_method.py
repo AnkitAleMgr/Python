@@ -53,8 +53,10 @@ def input_empty_checker(name, email, gender, status):
         name, email, gender, status = input_asker()
     return name, email, gender, status
 def proper_input_checker(name, email, gender, status):
+    valid_genders = {g.value for g in Genders}
+    valid_statuses = {s.value for s in Status}
     # constant varible
-    while gender not in [gender.value for gender in Genders] or status not in [status.value for status in Status] or name.isdigit() or email.isdigit():
+    while gender not in valid_genders or status not in valid_statuses or name.isdigit() or email.isdigit():
         print("Value you provide is not matching expected. Re-enter with proper input.")
         body_data()
     return name, email, gender, status
@@ -74,7 +76,7 @@ def body_data():
     return post_body
 
 def post(header, body):
-    post_variable = requests.post(BASE_URL, headers = header, json= body)
+    post_variable = requests.post(BASE_URL, headers = header, json= body, timeout = (3, 10))
 
     # trying to convert into json format
     try:
@@ -84,26 +86,25 @@ def post(header, body):
         return None
     
     # error code handeling
-    if response_data.status_code == 201:
+    if post_variable.status_code == 201:
         up_vertical_line()
-        print(f"Individual name {body["name"]} has be added in database with id {(response_data.json())["id"]}: ")
-        print(response_data.json())
+        print(f"Individual name {body["name"]} has be added in database with id {response_data["id"]}: ")
+        print(response_data)
         down_vertical_line()
-    elif response_data.status_code == 403:
+    elif post_variable.status_code == 403:
         up_vertical_line()
         print("Access denide. Please check your given permission.")
         down_vertical_line()
-    elif response_data.json()[0]["message"] == "has already been taken":
+    elif post_variable.json()[0]["message"] == "has already been taken":
         print(f"Individual name {body["name"]} has already been created. Please try puting new data.")
     else:
-        print(f"Something went wrong. Error code {response_data.status_code}")
+        print(f"Something went wrong. Error code {post_variable.status_code}")
     return response_data
 
 def main_operation():
     header = header_data()
     body = body_data()
     post(header, body)
-
 
 def main():
     main_operation()
