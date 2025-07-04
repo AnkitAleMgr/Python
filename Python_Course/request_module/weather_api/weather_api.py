@@ -1,4 +1,4 @@
-import os, requests
+import os, requests, re
 from dotenv import load_dotenv
 
 load_dotenv() # <-- creating object to read .env file
@@ -49,6 +49,12 @@ def input_day_range_checker(value, function, first_day, last_day):
         print(f"Invalid day. It must be between ({first_day} - {last_day}). Please re-enter the day:")
         function
     return value
+def input_date_format_checker(date, function, format):
+    
+    if not re.match(format, date):
+        print()
+    return date
+    
 
 # user dependent fucntion
 def user_endpoint():# <--to get endpoint from available end point
@@ -96,10 +102,13 @@ def days():
     last_day = 14
     days = custom_input("Enter the day duration (1-14): ")
     days = input_empty_checker(days, days())
-    input_day_range_checker(days, days(), first_day, last_day)
+    days = input_day_range_checker(days, days(), first_day, last_day)
+    return days
 def dt():
-    pass
-# def 
+    date_format = r"^\d{4}-\d{2}-\d{2}$"
+    date = custom_input("Enter the date (yyyy-MM-dd) format: ") 
+    date = input_empty_checker(date, dt())
+    input_date_format_checker(date, dt(), format)
 
 # handeling params according to user end point choice:
 def current_weather_params():
