@@ -23,16 +23,10 @@ def custom_input(prompt): # <--custom input
     if value in EXIT_KEYWORD:
         print("exiting...")
         exit()
-    return value
-def location_input_empty_checker(value):
-    if value == "":
-        print("Input cannot be empty. Please re-enter.. ")
-        user_location()
-    return value
-def input_empty_checker(value, function):
-    if value == "":
-        print("Input cannot be empty. Please re-enter value: ")
-        return function()
+    while value == "":
+        print("Input cannot to empty.")
+        line()
+        value = input(prompt).strip().lower()
     return value
 def input_boolean_checker(value, function):
     if value in ["yes","no"]:
@@ -86,7 +80,6 @@ def user_endpoint():# <--to get endpoint from available end point
     return user_end_point, available[user_end_point]
 def user_location():# <--to get location detail from user   
     location = custom_input("Please enter the location: ")
-    location = location_input_empty_checker(location)
 
     print(f"{location.capitalize()} has been accepted as valid location.")
     return location
@@ -99,13 +92,11 @@ def user_params():# <--to get necessery params from user
 def api():
     # function = "api"
     user_api = custom_input("Do you want api(get air quality data(Yes/No)): ")
-    user_api = input_empty_checker(user_api, api)
     user_api = input_boolean_checker(user_api, api) 
     return user_api
 def days(last_day):
     first_day = 1
     user_days = custom_input(f"Enter the day duration ({first_day}-{last_day}): ")
-    user_days = input_empty_checker(user_days, days)
     user_days = input_day_range_checker(user_days, days, first_day, int(last_day))
     return user_days
 def dt():
@@ -114,9 +105,8 @@ def dt():
     user_date = input_empty_checker(user_date, dt)
     user_date = input_date_format_checker(user_date, dt)
     return user_date
-def alerts():
+def alerts():   
     user_alerts = custom_input("Enter if you want alerts(Yes/No): ")
-    user_alerts = input_empty_checker(user_alerts, alerts)
     user_alerts = input_boolean_checker(user_alerts, alerts)
     return user_alerts
 
