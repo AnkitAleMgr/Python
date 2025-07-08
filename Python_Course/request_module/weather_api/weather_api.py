@@ -1,5 +1,6 @@
 from curses.ascii import isdigit
 import os, requests
+import re
 from dotenv import load_dotenv
 from datetime import datetime
 
@@ -36,6 +37,14 @@ def input_boolean_checker(value, function):
     else:
         print("Input can only be in boolean(Yes/No) format. Please re-enter value:")
         return function()
+def date_asker():
+    while True:
+        user_date = custom_input("Enter the date (yyyy-MM-dd) format: ")
+        try:
+            valid_date = datetime.strptime(user_date, "%Y-%m-%d")
+            return valid_date
+        except:
+            print("Invalid date format or non-date input. Please re-enter.")
 
 # user dependent fucntion
 def user_endpoint():# <--to get endpoint from available end point
@@ -52,7 +61,7 @@ def user_endpoint():# <--to get endpoint from available end point
     print(f"Available end point ({len(available)}): ")
     line()
     for key, value in available.items():
-        print(key)
+        print(key.capitalize())
     user_end_point = custom_input("Please enter the end point: ")
     while user_end_point not in available.keys():  
         print("Invalid end point. Please re-enter end point..")
@@ -78,7 +87,6 @@ def api():
 def days(last_day):
     first_day = 1
     user_days = custom_input(f"Enter the day duration ({first_day}-{last_day}): ")
-    # user_days = input_day_range_checker(user_days, days, first_day, int(last_day))
     while True:
         while not user_days.isdigit():
             print(f"Invalid day. {user_days} cannot be converted into true number. Please re-enter the day:")
@@ -89,17 +97,23 @@ def days(last_day):
             print(f"Day must be between {first_day} - {last_day}")
             user_days = custom_input(f"Enter the day duration ({first_day}-{last_day}): ")   
     return user_days
-def dt():
-    while True:
-        user_date = custom_input("Enter the date (yyyy-MM-dd) format: ")
-        try:
-            valid_date = datetime.strptime(user_date, "%Y-%m-%d")
-            print(f"{valid_date.date()} has been accepted ad valid date.")
-            break
-        except:
-            print("Invalid date format or non-date input. Please re-enter.")
-    return valid_date.date()
+def dt(period):
+    present_date = datetime.now()
+    present_year = present_date.year
+    present_month = present_date.month
+    present_day = present_date.day
+    user_date = date_asker()
 
+    if period == "past":
+        while user_date.date() >= present_date.date():
+            print("Invalid time period. Please enter the date on or after 1st Jan, 2010 in yyyy-MM-dd format.")
+            user_date = date_asker()
+        return user_date.date()
+    if period == "future":
+        # saving for future
+        pass
+    else:
+        print("Something went wrong witn tense. Please check the arguments.")
 def alerts():
     user_alerts = custom_input("Enter if you want alerts(Yes/No): ")
     user_alerts = input_boolean_checker(user_alerts, alerts)
@@ -115,14 +129,14 @@ def forecast_params():
     user_days = days(14)    
     return user_api, user_alerts, user_days
 def history_params():
-    user_date = dt()
-    print(user_date)
+    user_date = dt(period="past")
 def alerts_params():
-    pass
+    # it has no prams so i will not send empty params/dictionary
+    return
 def future_params():
-    pass
+    dt(tense = "future")
 def marine_params():
-    pass
+    user_day = days(7)
 
 def data_retriver(): # <-- requesting data form the server
     user_end_point, url_endpoint = user_endpoint()
