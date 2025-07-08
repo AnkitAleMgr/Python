@@ -2,7 +2,7 @@ from curses.ascii import isdigit
 import os, requests
 import re
 from dotenv import load_dotenv
-from datetime import datetime
+from datetime import datetime, timedelta
 
 load_dotenv() # <-- creating object to read .env file
 
@@ -99,19 +99,20 @@ def days(last_day):
     return user_days
 def dt(period):
     present_date = datetime.now()
-    present_year = present_date.year
-    present_month = present_date.month
-    present_day = present_date.day
     user_date = date_asker()
 
     if period == "past":
         while user_date.date() >= present_date.date():
             print("Invalid time period. Please enter the date on or after 1st Jan, 2010 in yyyy-MM-dd format.")
             user_date = date_asker()
+        print(f"{user_date.date()} has been accepted as valid {period} date")
         return user_date.date()
     if period == "future":
-        # saving for future
-        pass
+        while not ((present_date.date() + timedelta(days=14)) <= user_date.date() <= (present_date.date() + timedelta(days=300))):
+            print("Invalid time period. Please enter the date between 14 days and 300 days from today in the future in yyyy-MM-dd format")
+            user_date = date_asker()
+        print(f"{user_date.date()} has been accepted as valid {period} date")
+        return user_date.date()
     else:
         print("Something went wrong witn tense. Please check the arguments.")
 def alerts():
@@ -134,7 +135,7 @@ def alerts_params():
     # it has no prams so i will not send empty params/dictionary
     return
 def future_params():
-    dt(tense = "future")
+    user_date = dt(period = "future")
 def marine_params():
     user_day = days(7)
 
@@ -156,12 +157,12 @@ def data_retriver(): # <-- requesting data form the server
         marine_params()
     
 
-    response = requests.get(url + url_endpoint ,key= API_KEY , q= location, timeout = (3, 10))
+    # response = requests.get(url + url_endpoint ,key= API_KEY , q= location, timeout = (3, 10))
 
-    if response.status_code == 200:
-        pass
-    else:
-        print(f"Something went wrong {response.status_code}")
+    # if response.status_code == 200:
+    #     pass
+    # else:
+    #     print(f"Something went wrong {response.status_code}")
 
 # main section
 def main():
