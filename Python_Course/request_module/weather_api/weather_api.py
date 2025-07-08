@@ -36,13 +36,6 @@ def input_boolean_checker(value, function):
     else:
         print("Input can only be in boolean(Yes/No) format. Please re-enter value:")
         return function()
-def input_date_format_checker(date, function):
-    try:
-        valid_date = datetime.strptime(date, "%Y-%m-%d")
-        return valid_date
-    except:
-        print("Invalid date format or non-date input. Please re-enter.")
-        function()
 
 # user dependent fucntion
 def user_endpoint():# <--to get endpoint from available end point
@@ -97,11 +90,16 @@ def days(last_day):
             user_days = custom_input(f"Enter the day duration ({first_day}-{last_day}): ")   
     return user_days
 def dt():
-    # date_format = r"^\d{4}-\d{2}-\d{2}$"
-    user_date = custom_input("Enter the date (yyyy-MM-dd) format: ") 
-    # user_date = input_empty_checker(user_date, dt)
-    user_date = input_date_format_checker(user_date, dt)
-    return user_date
+    while True:
+        user_date = custom_input("Enter the date (yyyy-MM-dd) format: ")
+        try:
+            valid_date = datetime.strptime(user_date, "%Y-%m-%d")
+            print(f"{valid_date.date()} has been accepted ad valid date.")
+            break
+        except:
+            print("Invalid date format or non-date input. Please re-enter.")
+    return valid_date.date()
+
 def alerts():
     user_alerts = custom_input("Enter if you want alerts(Yes/No): ")
     user_alerts = input_boolean_checker(user_alerts, alerts)
@@ -114,10 +112,11 @@ def current_weather_params():
 def forecast_params():
     user_api = api()
     user_alerts = alerts()
-    user_days = days(14)
+    user_days = days(14)    
     return user_api, user_alerts, user_days
 def history_params():
-    dt()
+    user_date = dt()
+    print(user_date)
 def alerts_params():
     pass
 def future_params():
