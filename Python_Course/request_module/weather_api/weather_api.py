@@ -1,3 +1,4 @@
+from curses.ascii import isdigit
 import os, requests
 from dotenv import load_dotenv
 from datetime import datetime
@@ -30,23 +31,11 @@ def custom_input(prompt): # <--custom input
     return value
 def input_boolean_checker(value, function):
     if value in ["yes","no"]:
-        print(f"{value.capitalize()} is accepted as value.")
+        print(f"{value.capitalize()} is accepted as boolean value.")
         return value
     else:
         print("Input can only be in boolean(Yes/No) format. Please re-enter value:")
         return function()
-    
-def input_day_range_checker(value, function, first_day, last_day):
-    try:
-        value = int(value)
-    except ValueError:
-        print(f"Invalid day. {value} cannot be converted int true number. Please re-enter the day:")
-        function()
-        
-    while not (first_day <= value <= last_day):
-        print(f"Invalid day. It must be between ({first_day} - {last_day}). Please re-enter the day:")
-        function()
-    return value
 def input_date_format_checker(date, function):
     try:
         valid_date = datetime.strptime(date, "%Y-%m-%d")
@@ -90,22 +79,30 @@ def user_params():# <--to get necessery params from user
 
 # asking data for prams
 def api():
-    # function = "api"
     user_api = custom_input("Do you want api(get air quality data(Yes/No)): ")
     user_api = input_boolean_checker(user_api, api) 
     return user_api
 def days(last_day):
     first_day = 1
     user_days = custom_input(f"Enter the day duration ({first_day}-{last_day}): ")
-    user_days = input_day_range_checker(user_days, days, first_day, int(last_day))
+    # user_days = input_day_range_checker(user_days, days, first_day, int(last_day))
+    while True:
+        while not user_days.isdigit():
+            print(f"Invalid day. {user_days} cannot be converted into true number. Please re-enter the day:")
+            user_days = custom_input(f"Enter the day duration ({first_day}-{last_day}): ")
+        if (first_day <= int(user_days) <= last_day):
+            break
+        else:
+            print(f"Day must be between {first_day} - {last_day}")
+            user_days = custom_input(f"Enter the day duration ({first_day}-{last_day}): ")   
     return user_days
 def dt():
     # date_format = r"^\d{4}-\d{2}-\d{2}$"
     user_date = custom_input("Enter the date (yyyy-MM-dd) format: ") 
-    user_date = input_empty_checker(user_date, dt)
+    # user_date = input_empty_checker(user_date, dt)
     user_date = input_date_format_checker(user_date, dt)
     return user_date
-def alerts():   
+def alerts():
     user_alerts = custom_input("Enter if you want alerts(Yes/No): ")
     user_alerts = input_boolean_checker(user_alerts, alerts)
     return user_alerts
@@ -116,9 +113,11 @@ def current_weather_params():
     return user_api
 def forecast_params():
     user_api = api()
-    print(f"{user_api} form forcase")
+    user_alerts = alerts()
+    user_days = days(14)
+    return user_api, user_alerts, user_days
 def history_params():
-    pass
+    dt()
 def alerts_params():
     pass
 def future_params():
@@ -128,12 +127,12 @@ def marine_params():
 
 def data_retriver(): # <-- requesting data form the server
     user_end_point, url_endpoint = user_endpoint()
-    location = user_location()
+    # location = user_location()
     
     if user_end_point == "current weather":
         user_api = current_weather_params()
     elif user_end_point == "forecast":
-        forecast_params()
+        user_api, user_alerts ,user_days =  forecast_params()
     elif user_end_point == "history":
         history_params()
     elif user_end_point == "alerts":
