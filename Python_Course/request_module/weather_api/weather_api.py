@@ -19,15 +19,15 @@ length = 170
 def line():
     print("-"*length)
 def custom_input(prompt): # <--custom input
-    line()
+    # line()
     value = input(prompt).strip().lower()
-    line()
+    # line()
     if value in EXIT_KEYWORD:
         print("exiting...")
         exit()
     while value == "":
         print("Input cannot to empty.")
-        line()
+        # line()
         value = input(prompt).strip().lower()
     return value
 def input_boolean_checker(value, function):
@@ -74,16 +74,18 @@ def user_location():# <--to get location detail from user
 
     print(f"{location.capitalize()} has been accepted as valid location.")
     return location
-def user_params():# <--to get necessery params from user
-    
-
-    return
+def user_params(**kwargs):# <--to get necessery params from user
+    params = dict()
+    for key, value in kwargs.items():
+        params[str(key)]= str(value)
+    return params
 
 # asking data for prams
-def api():
-    user_api = custom_input("Do you want api(get air quality data(Yes/No)): ")
-    user_api = input_boolean_checker(user_api, api) 
-    return user_api
+def aqi():
+    user_aqi = custom_input("Do you want aqi(get air quality data(Yes/No)): ")
+    user_aqi = input_boolean_checker(user_aqi, aqi)
+
+    return user_aqi
 def days(last_day):
     first_day = 1
     user_days = custom_input(f"Enter the day duration ({first_day}-{last_day}): ")
@@ -122,47 +124,68 @@ def alerts():
 
 # handeling params according to user end point choice:
 def current_weather_params():
-    user_api = api()
-    return user_api
+    user_aqi = aqi()
+    params = user_params(aqi = user_aqi)
+
+    return params
 def forecast_params():
-    user_api = api()
+    user_aqi = aqi()
     user_alerts = alerts()
     user_days = days(14)    
-    return user_api, user_alerts, user_days
+    params = user_params(aqi = user_aqi, alerts = user_alerts, days = user_days)
+    return params
 def history_params():
     user_date = dt(period="past")
+    params = user_params(dt = user_date)
+
+    return params 
 def alerts_params():
-    # it has no prams so i will not send empty params/dictionary
-    return
+    # params = user_params()
+    params = dict()
+    return params
 def future_params():
     user_date = dt(period = "future")
+    params = user_params(dt = user_date)
+    return params
 def marine_params():
-    user_day = days(7)
+    user_days = days(7)
+    params = user_params(days = user_days)
+
+    return params
 
 def data_retriver(): # <-- requesting data form the server
     user_end_point, url_endpoint = user_endpoint()
-    # location = user_location()
-    
+    location = user_location()
+    user_params = ""
+
     if user_end_point == "current weather":
-        user_api = current_weather_params()
+        user_params = current_weather_params()
     elif user_end_point == "forecast":
-        user_api, user_alerts ,user_days =  forecast_params()
+        user_params =  forecast_params()
     elif user_end_point == "history":
-        history_params()
+        user_params = history_params()
     elif user_end_point == "alerts":
-        alerts_params()
+        user_params= alerts_params()
     elif user_end_point == "future":
-        future_params()
+        user_params = future_params()
     else: 
-        marine_params()
+        user_params = marine_params() 
     
+    user_params["key"] = API_KEY
+    user_params["q"] = location
 
-    # response = requests.get(url + url_endpoint ,key= API_KEY , q= location, timeout = (3, 10))
-
-    # if response.status_code == 200:
-    #     pass
-    # else:
-    #     print(f"Something went wrong {response.status_code}")
+    response = requests.get(url + url_endpoint ,params= user_params, timeout = (3, 10))
+    
+    if response.status_code == 200:
+        print("Date received from server")
+    elif response.status_code == 400:
+        print(f"Did not found the data of location named {location}. Please try nearby location")
+        print(f"Error code: {response.status_code}")
+    elif response.status_code == 401:
+        print("You dont have access to data from server. Please re-check you access token and permission.")
+        print(f"Error code:  {response.status_code}")
+    else:
+        print(f"Something went wrong. Error code: {response.status_code}")
 
 # main section
 def main():
