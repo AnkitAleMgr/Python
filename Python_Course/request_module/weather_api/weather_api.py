@@ -30,14 +30,14 @@ def custom_input(prompt): # <--custom input
         # line()
         value = input(prompt).strip().lower()
     return value
-def input_boolean_checker(value, function):
+def input_boolean_checker(value, function): # <--check if the value is boolean or not
     if value in ["yes","no"]:
         print(f"{value.capitalize()} is accepted as boolean value.")
         return value
     else:
         print("Input can only be in boolean(Yes/No) format. Please re-enter value:")
         return function()
-def date_asker():
+def date_asker(): # <--asking date form user in proper format
     while True:
         user_date = custom_input("Enter the date (yyyy-MM-dd) format: ")
         try:
@@ -45,6 +45,13 @@ def date_asker():
             return valid_date
         except:
             print("Invalid date format or non-date input. Please re-enter.")
+def data_display(data): # <--it display key of data received form apis
+    line()
+    print(f"Available Topics ({len(data)}):")
+    line()
+    for key in data.keys():
+        print("->" + key)
+    line()
 
 # user dependent fucntion
 def user_endpoint():# <--to get endpoint from available end point
@@ -81,12 +88,12 @@ def user_params(**kwargs):# <--to get necessery params from user
     return params
 
 # asking data for prams
-def aqi():
+def aqi(): # <--apis keys function
     user_aqi = custom_input("Do you want aqi(get air quality data(Yes/No)): ")
     user_aqi = input_boolean_checker(user_aqi, aqi)
 
     return user_aqi
-def days(last_day):
+def days(last_day): # <--days keys function
     first_day = 1
     user_days = custom_input(f"Enter the day duration ({first_day}-{last_day}): ")
     while True:
@@ -99,7 +106,7 @@ def days(last_day):
             print(f"Day must be between {first_day} - {last_day}")
             user_days = custom_input(f"Enter the day duration ({first_day}-{last_day}): ")   
     return user_days
-def dt(period):
+def dt(period): # <--date keys function
     present_date = datetime.now()
     user_date = date_asker()
 
@@ -117,37 +124,37 @@ def dt(period):
         return user_date.date()
     else:
         print("Something went wrong witn tense. Please check the arguments.")
-def alerts():
+def alerts(): # <--alerts keys function
     user_alerts = custom_input("Enter if you want alerts(Yes/No): ")
     user_alerts = input_boolean_checker(user_alerts, alerts)
     return user_alerts
 
 # handeling params according to user end point choice:
-def current_weather_params():
+def current_weather_params(): # create prams according to user input for current weather endpoint
     user_aqi = aqi()
     params = user_params(aqi = user_aqi)
 
     return params
-def forecast_params():
+def forecast_params(): # create prams according to user input for forecast endpoint
     user_aqi = aqi()
     user_alerts = alerts()
     user_days = days(14)    
     params = user_params(aqi = user_aqi, alerts = user_alerts, days = user_days)
     return params
-def history_params():
+def history_params(): # create prams according to user input for history endpoint
     user_date = dt(period="past")
     params = user_params(dt = user_date)
 
     return params 
-def alerts_params():
+def alerts_params(): # create prams according to user input for alerts endpoint
     # params = user_params()
     params = dict()
     return params
-def future_params():
+def future_params(): # create prams according to user input for future endpoint
     user_date = dt(period = "future")
     params = user_params(dt = user_date)
     return params
-def marine_params():
+def marine_params(): # create prams according to user input for marine endpoint
     user_days = days(7)
     params = user_params(days = user_days)
 
@@ -178,6 +185,7 @@ def data_retriver(): # <-- requesting data form the server
     
     if response.status_code == 200:
         print("Date received from server")
+        return response.json()
     elif response.status_code == 400:
         print(f"Did not found the data of location named {location}. Please try nearby location")
         print(f"Error code: {response.status_code}")
@@ -186,10 +194,13 @@ def data_retriver(): # <-- requesting data form the server
         print(f"Error code:  {response.status_code}")
     else:
         print(f"Something went wrong. Error code: {response.status_code}")
+def data_displayer(data): # <-- to display necessery data to user
+    data_display(data) #it display visually about topic in user selected endpoint
 
 # main section
 def main():
-    data_retriver()
+    data = data_retriver()
+    data_displayer(data)
 
 # entry point
 if __name__ == "__main__":
