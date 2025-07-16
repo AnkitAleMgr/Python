@@ -7,7 +7,7 @@ EXIT_KEYWORD = {"q", "quit", "exit", "e", ""}
 
 print("-"*148)
 amount = input("Enter the price of product: ")
-while amount not in "q":
+while amount not in EXIT_KEYWORD:
     try:
         amount = int(amount)
     except:
@@ -20,3 +20,19 @@ while amount not in "q":
 print("-"*148)
 print("Total price:",total_price)
 print("-"*148)
+
+# print("-"* 148)
+# while True:
+#     amount = input("Enter the price of product: ")
+#     if amount in EXIT_KEYWORD:
+#         print("Caculating total price..")
+#         print("-"* 148)
+#         print("Total price: ", total_price)
+#         print("-"* 148)
+#         break
+#     else:
+#         try:
+#             amount = int(amount)
+#         except:
+#             print("Amount cannot be converted into number.")
+#         total_price += amount
