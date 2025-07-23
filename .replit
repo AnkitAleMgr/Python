@@ -3,7 +3,7 @@ run = "python Python_Course/command_line_utility/main.py"
 
 [nix]
 channel = "stable-24_05"
-packages = ["lacus", "nmh"]
+packages = ["lacus", "nmh", "q-text-as-data"]
 
 [deployment]
 run = ["sh", "-c", "python main.py"]
