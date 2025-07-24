@@ -103,31 +103,50 @@ class Computer(Device):
 class Showroom(ABC):
     no_of_showroom = 0
     showrooms = list()
+    
     def __init__(self, name) -> None:
         self.name = name
+        self.location = None
         Showroom.no_of_showroom += 1
-        self.add_showroom(name)
-        
-    def add_showroom(self, name) -> None:
-        Showroom.showrooms.append(name)
+        Showroom.showrooms.append(self)
+
     def show_showroom(self):
-        return Showroom.showrooms
+        return 
+        
+    def __repr__(self):
+        return f"{self.__class__.__name__}(name='{self.name}', location='{self.location}')"
     
 class Apple_showroom(Showroom):
     no_of_Apple_showroom = 0
-    def __init__(self, name) -> None:
+    def __init__(self, name, location) -> None:
         super().__init__(name)
+        self.location = location
         Apple_showroom.no_of_Apple_showroom += 1
         
 class Other_showroom(Showroom):
     no_of_other_showroom = 0
-    def __init__(self, name) -> None:
+    def __init__(self, name, location) -> None:
         super().__init__(name)
+        self.location = location
         Other_showroom.no_of_other_showroom += 1
 
-apple_showroom1 = Apple_showroom(name = "ankit_apple1")
-apple_showroom2 = Apple_showroom(name = "ankit_apple2")
-other_showroom1 = Other_showroom(name = "ankit_other1")
-other_showroom2 = Other_showroom(name = "ankit_other2")
+apple_showroom1 = Apple_showroom(name = "ankit_apple1", location="khairenitar")
+apple_showroom2 = Apple_showroom(name = "ankit_apple2", location="khairenitar")
+other_showroom1 = Other_showroom(name = "ankit_other1", location="khairenitar")
+other_showroom2 = Other_showroom(name = "ankit_other2", location="khairenitar")
 
+# Showroom1 = Showroom(name= "khairentiar showroom")
+# Showroom2 = Showroom(name= "damauli showroom")
+
+# Showroom1.add_showroom(name= apple_showroom1)
+# Showroom1.add_showroom(name= apple_showroom1)
+# Showroom1.add_showroom(name= other_showroom1)
+# Showroom2.add_showroom(name= other_showroom2)
+
+
+for showroom in Showroom.showrooms:
+    print(f"{showroom.name} ({showroom.__class__.__name__}) - {showroom.location}")
+
+print()
+print(Showroom.showrooms)
 
