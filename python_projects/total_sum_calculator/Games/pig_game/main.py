@@ -1,4 +1,4 @@
-import random
+import random, logging, os
 
 length = 140
 # options = ["View Rules 📜", "Play 🎮", "Game Mods ⚙️", "Records and History 🗂️", "Quit ❌"]
@@ -6,26 +6,10 @@ options = ["View Rules ", "Play ", "Game Mods ", "Records and History ", "Quit "
 
 # game mode setting:
 no_of_dice = 2
-no_of_player = 1
+no_of_player = 3
 target_score = 100
 
-def symbols():
-    """
-+-------+      +-------+      +-------+
-|       |      | ●     |      | ●   ● |
-|   ●   |      |   ●   |      |       |
-|       |      |     ● |      | ●   ● |
-+-------+      +-------+      +-------+
-    1              2              3
 
-+-------+      +-------+      +-------+
-| ●   ● |      | ●   ● |      | ●   ● |
-|       |      |   ●   |      | ●   ● |
-| ●   ● |      | ●   ● |      | ●   ● |
-+-------+      +-------+      +-------+
-    4              5              6
-
-    """
 def line() -> None:
     print("-"*length)
 def custom_input(prompt):
@@ -130,7 +114,21 @@ def dice_displayer(rolls : list):
             lines[i] += dice_faces[roll][i] + "  "
     for line in lines:
         print(line)
+def logger(data : list):
+    path = os.path.join(os.path.dirname(__file__), "history.log")
 
+    logging.basicConfig(
+    level=logging.INFO,
+    filename= path,
+    filemode="a",
+    format="%(asctime)s - %(levelname)s - %(message)s"
+    )
+    logging.info(data)
+def winner_notifier(data : list):
+    print(data)
+    sorted_data = dict(sorted(data.items(), key=lambda items: items[1], reverse= True))
+    print(sorted_data)
+    
 
 def mode_asker():
     line()
@@ -234,8 +232,11 @@ def play():
                     break
                 else:
                     print("Invalid input.")
-        score_displayer(player_and_score)       
+        score_displayer(player_and_score)  
+    winner_notifier(player_and_score)
+    print("Game has  ended")
 
+    # logger(player_and_score)
 
 
 
@@ -252,10 +253,10 @@ def main():
     #         case 4:
     #             records_and_history()
     #         case _:
-                # print("Exiting...")
-                # line()
-                # exit()
-     play()    
+    #             print("Exiting...")
+    #             line()
+    player_and_score = {'ankit': 53, 'anmol': 111, 'vim': 75,'ankits': 5, 'anmols': 11, 'vims': 752}
+    winner_notifier(player_and_score)
 
 if __name__ == "__main__":
     main()
