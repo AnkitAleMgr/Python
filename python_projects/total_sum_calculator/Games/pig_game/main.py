@@ -1,3 +1,6 @@
+from ast import mod
+from curses.ascii import isdigit
+from pickle import NONE
 import random, logging, os
 
 length = 140
@@ -125,10 +128,24 @@ def logger(data : list):
     )
     logging.info(data)
 def winner_notifier(data : list):
-    print(data)
     sorted_data = dict(sorted(data.items(), key=lambda items: items[1], reverse= True))
-    print(sorted_data)
-    
+    rank = 0
+    previous_value = None
+    ranked = dict()
+
+    for key, value in sorted_data.items():
+        if value != previous_value:
+            rank += 1
+            previous_value = value
+        ranked[key] = rank   
+    # region ddisplaying output
+    print("-"*29)
+    print(f"|{"Name":^10}|{"Rank":^6}|{"Score":^9}|")
+    print("|"+"-"*27+ "|")
+    for key, rank in ranked.items():
+        print(f"|{key:^10}|{rank:^6}|{sorted_data[key]:^9}|")
+    print("-"*29)
+    # endregion
 
 def mode_asker():
     line()
@@ -168,7 +185,19 @@ def view_rules() -> None:
 """
     print(pig_game_description)
 def game_mods():
-    print("Game mods will be available soon")
+    mods = ["no of dice", "no of players", "target score"]
+    print("    Available mods: ")
+    for index, mod in enumerate(mods, start=1):
+        print(f"    {index}) {mod}")
+    print("")
+    while True:
+        index = custom_input(f"Enter the mod index you want to change(1-{ len(mods)})")
+        if not index.isdigit():
+            print(f"It must be digit(1-{len(mods)})")
+        if index > len(mods):
+            print("index out of bond")
+    
+
 def play():
     # region basic rule displayer
     print("Basic rule:")
@@ -239,24 +268,23 @@ def play():
     # logger(player_and_score)
 
 
-
 def main():
-    # while True:
-    #     mode = mode_asker()
-    #     match mode:
-    #         case 1:
-    #             view_rules()
-    #         case 2:
-    #             play()
-    #         case 3:
-    #             game_mods()
-    #         case 4:
-    #             records_and_history()
-    #         case _:
-    #             print("Exiting...")
-    #             line()
-    player_and_score = {'ankit': 53, 'anmol': 111, 'vim': 75,'ankits': 5, 'anmols': 11, 'vims': 752}
-    winner_notifier(player_and_score)
+    while True:
+        mode = mode_asker()
+        match mode:
+            case 1:
+                view_rules()
+            case 2:
+                play()
+            case 3:
+                game_mods()
+            case 4:
+                records_and_history()
+            case _:
+                print("Exiting...")
+                line()
+    # player_and_score = {'ankit': 752, 'anmol': 111, 'vim': 75,'ankits': 5, 'anmols': 11, 'vims': 752}
+    # winner_notifier(player_and_score)
 
 if __name__ == "__main__":
     main()
