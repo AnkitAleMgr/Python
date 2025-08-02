@@ -1,22 +1,15 @@
-import random, logging, os
+from operator import setitem
+import random, logging, os, json
 
 length = 140
 # options = ["View Rules 📜", "Play 🎮", "Game Mods ⚙️", "Records and History 🗂️", "Quit ❌"]
 options = ["View Rules ", "Play ", "Game Mods ", "Records and History ", "Quit "]
 
-# game mode setting:
-
 setting = None
 
-no_of_dice = 2
+no_of_dice = setting["no_of_dice"]
 no_of_player = 3
 target_score = 100
-
-# default_settings = {
-#     "no_of_dice": 2,
-#     "no_of_players": 4,
-#     "target_score": 100
-# }
 
 
 def line() -> None:
@@ -166,14 +159,25 @@ def no_of_player_changer():
 def target_score_changer():
     pass
 def setting_loder():
-    current_folder = os.path.dirname(os.path.abspath(__file__))
-    print(current_folder)
-    # path = os.path.join(current_folder, )
-    if os.path.exists(current_folder + "/setting.json"):
-        print("exits")
-    else:
-        print("doesnt exist")
+    global setting
+    default_settings = {
+    "no_of_dice": 2,
+    "no_of_players": 4,
+    "target_score": 100
+}
+    setting_file_path = os.path.dirname(os.path.abspath(__file__)) + "/setting.json"
+    print(setting_file_path)
 
+    while True:
+        if os.path.exists(setting_file_path):
+            print("File found. Loding data...")
+            with open(setting_file_path, "r") as f:
+                setting = json.load(f)
+                return
+        else:
+            print("File doesnt exist. New file 'setting.json' has been created.")
+            with open (setting_file_path, "w") as f:
+                json.dump(default_settings, f, indent=4)
 
 def mode_asker():
     line()
@@ -304,6 +308,8 @@ def play():
 
 def main():
     setting_loder()
+    print(setting["no_of_dice"])
+    game_mods()
     # while True:
     #     mode = mode_asker()
     #     match mode:
