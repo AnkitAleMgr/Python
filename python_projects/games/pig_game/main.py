@@ -5,12 +5,12 @@ length = 140
 # options = ["View Rules 📜", "Play 🎮", "Game Mods ⚙️", "Records and History 🗂️", "Quit ❌"]
 options = ["View Rules ", "Play ", "Game Mods ", "Records and History ", "Quit "]
 
-setting = None
+# setting = None
 
-no_of_dice = setting["no_of_dice"]
-no_of_player = 3
-target_score = 100
-
+# no_of_dice = setting["no_of_dice"]
+no_of_dice = None
+no_of_player = None
+target_score = None
 
 def line() -> None:
     print("-"*length)
@@ -146,38 +146,44 @@ def winner_notifier(data : list):
     print("-"*29)
     # endregion
 def no_of_dice_changer():
+    global no_of_dice
     while True:
         try:
-            count = int(custom_input("Enter the no of dice you want to play with (1- 10): "))
+            dice = int(custom_input("Enter the no of dice you want to play with (1- 10): "))
         except ValueError:
             print("Invalid input.")
-        if not (1 <= count <= 10):
-            no_of_dice = count
-            print(f"No of dice has been changed to {count}")
+        if not (1 <= dice <= 10):
+            print(f"{dice} cannot be accepted.")
+            continue
+        no_of_dice = dice
+        print(f"No of dice has been changed to {dice}")
+        return
 def no_of_player_changer():
     pass
 def target_score_changer():
     pass
 def setting_loder():
-    global setting
+    global no_of_dice, target_score, no_of_player
     default_settings = {
-    "no_of_dice": 2,
-    "no_of_players": 4,
-    "target_score": 100
+    "no of dice": 2,
+    "no of player": 4,
+    "target score": 100
 }
     setting_file_path = os.path.dirname(os.path.abspath(__file__)) + "/setting.json"
     print(setting_file_path)
-
     while True:
         if os.path.exists(setting_file_path):
             print("File found. Loding data...")
             with open(setting_file_path, "r") as f:
                 setting = json.load(f)
-                return
+                break
         else:
             print("File doesnt exist. New file 'setting.json' has been created.")
             with open (setting_file_path, "w") as f:
                 json.dump(default_settings, f, indent=4)
+    no_of_dice = setting["no of dice"]
+    no_of_player = setting["no of player"]
+    target_score = setting["target score"]
 
 def mode_asker():
     line()
@@ -308,8 +314,9 @@ def play():
 
 def main():
     setting_loder()
-    print(setting["no_of_dice"])
     game_mods()
+    print(no_of_player, "in ma")
+
     # while True:
     #     mode = mode_asker()
     #     match mode:
