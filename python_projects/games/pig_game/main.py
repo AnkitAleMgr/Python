@@ -1,9 +1,10 @@
+from encodings.punycode import T
 from operator import setitem
 import random, logging, os, json
 
 length = 140
 # options = ["View Rules 📜", "Play 🎮", "Game Mods ⚙️", "Records and History 🗂️", "Quit ❌"]
-options = ["View Rules ", "Play ", "Game Mods ", "Records and History ", "Quit "]
+options = ["View Rules ", "Play ", "Game Mods ", "Records and History ", "Quit ,"]
 
 # setting = None
 
@@ -15,7 +16,8 @@ target_score = None
 def line() -> None:
     print("-"*length)
 def custom_input(prompt):
-    EXIT_SYMBOL = ["q", "quit", "exit","e"]
+    EXIT_SYMBOL = ["q", "quit", "exit", "e", "clear"]
+
     while True:
         user_input = input(prompt).strip().lower()
         if user_input in EXIT_SYMBOL:
@@ -24,7 +26,6 @@ def custom_input(prompt):
             exit()
         if user_input == "":
             print("Empty input. Please fill the detail. ")
-            line()
             continue
             
         return user_input
@@ -184,6 +185,10 @@ def setting_loder():
     no_of_dice = setting["no of dice"]
     no_of_player = setting["no of player"]
     target_score = setting["target score"]
+def setting_changer(key, min_max, number):
+    print("got it")
+    print(key, min_max, number)
+    
 
 def mode_asker():
     line()
@@ -223,25 +228,50 @@ def view_rules() -> None:
 """
     print(pig_game_description)
 def game_mods():
-    mods = ["no of dice", "no of players", "target score"]
-    mods_function = [no_of_dice_changer, no_of_player_changer, target_score_changer]
+    mods = {
+        "no of dice" : [[1, 10], "number"],
+        "no of players": [[1, 10], "number"],
+        "target score": [[1, 10], "number"]
+    }
     
     print("    Available mods: ")
     for index, mod in enumerate(mods, start=1):
         print(f"    {index}) {mod}")
     print("")
+    # while True:
+    #     try:
+    #         index = int(custom_input(f"Enter the mod index you want to change(1-{ len(mods)}): "))
+    #     except ValueError:
+    #         print("invalid input.")
+    #         continue
+    #     if not (0 < int(index) <= len(mods)):
+    #         print("Invalid option please try again")
+    #     else:
+    #         function = mods_function[index -1]
+    #         function()
+    #         break
+    
     while True:
         try:
-            index = int(custom_input(f"Enter the mod index you want to change(1-{ len(mods)}): "))
-        except ValueError:
-            print("invalid input.")
-            continue
-        if not (0 < int(index) <= len(mods)):
-            print("Invalid option please try again")
-        else:
-            function = mods_function[index -1]
-            function()
-            break
+            option = int(custom_input(f"Enter the index of option you want to chagen (1 - {len(mods)}): "))
+        except:
+            print("Invalid input")
+        if not (1 <= option <= len(mods)):
+            print("Invalid option")
+        key = [key for key in mods][option - 1]
+        min_max, number = mods[key]
+        print(key, min_max, number)
+        print(type(key))
+        print(type(min_max))
+        print(type(number))
+
+        setting_changer(key, min_max, number)
+        break
+
+        
+        
+
+
 def play():
     # region basic rule displayer
     print("Basic rule:")
@@ -313,9 +343,9 @@ def play():
 
 
 def main():
-    setting_loder()
+    # setting_loder()
     game_mods()
-    print(no_of_player, "in ma")
+
 
     # while True:
     #     mode = mode_asker()
