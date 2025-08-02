@@ -169,7 +169,7 @@ def setting_loder():
     current_folder = os.path.dirname(os.path.abspath(__file__))
     print(current_folder)
     # path = os.path.join(current_folder, )
-    if os.path.exists("setting.json"):
+    if os.path.exists(current_folder + "/setting.json"):
         print("exits")
     else:
         print("doesnt exist")
@@ -304,20 +304,20 @@ def play():
 
 def main():
     setting_loder()
-    while True:
-        mode = mode_asker()
-        match mode:
-            case 1:
-                view_rules()
-            case 2:
-                play()
-            case 3:
-                game_mods()
-            case 4:
-                records_and_history()
-            case _:
-                print("Exiting...")
-                line()
+    # while True:
+    #     mode = mode_asker()
+    #     match mode:
+    #         case 1:
+    #             view_rules()
+    #         case 2:
+    #             play()
+    #         case 3:
+    #             game_mods()
+    #         case 4:
+    #             records_and_history()
+    #         case _:
+    #             print("Exiting...")
+    #             line()
     # player_and_score = {'ankit': 752, 'anmol': 111, 'vim': 75,'ankits': 5, 'anmols': 11, 'vims': 752}
     # winner_notifier(player_and_score)
 
