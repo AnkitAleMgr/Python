@@ -1,10 +1,8 @@
-from encodings.punycode import T
-from operator import setitem
 import random, logging, os, json
 
 length = 140
 # options = ["View Rules 📜", "Play 🎮", "Game Mods ⚙️", "Records and History 🗂️", "Quit ❌"]
-options = ["View Rules ", "Play ", "Game Mods ", "Records and History ", "Quit ,"]
+options = ["View Rules ", "Play ", "Game Mods ", "Records and History ", "Quit"]
 
 # setting = None
 
@@ -26,6 +24,7 @@ def custom_input(prompt):
             exit()
         if user_input == "":
             print("Empty input. Please fill the detail. ")
+            line()
             continue
             
         return user_input
@@ -146,23 +145,6 @@ def winner_notifier(data : list):
         print(f"|{key:^10}|{rank:^6}|{sorted_data[key]:^9}|")
     print("-"*29)
     # endregion
-def no_of_dice_changer():
-    global no_of_dice
-    while True:
-        try:
-            dice = int(custom_input("Enter the no of dice you want to play with (1- 10): "))
-        except ValueError:
-            print("Invalid input.")
-        if not (1 <= dice <= 10):
-            print(f"{dice} cannot be accepted.")
-            continue
-        no_of_dice = dice
-        print(f"No of dice has been changed to {dice}")
-        return
-def no_of_player_changer():
-    pass
-def target_score_changer():
-    pass
 def setting_loder():
     global no_of_dice, target_score, no_of_player
     default_settings = {
@@ -171,7 +153,6 @@ def setting_loder():
     "target score": 100
 }
     setting_file_path = os.path.dirname(os.path.abspath(__file__)) + "/setting.json"
-    print(setting_file_path)
     while True:
         if os.path.exists(setting_file_path):
             print("File found. Loding data...")
@@ -186,16 +167,46 @@ def setting_loder():
     no_of_player = setting["no of player"]
     target_score = setting["target score"]
 def setting_changer(key, min_max, number):
-    print("got it")
-    print(key, min_max, number)
-    
+    global no_of_dice, target_score, no_of_player
+    while True:
+        user_input = custom_input(f"Enter the {key} ({min_max[0]} - {min_max[1]}): ")
+        if  user_input.isdigit() and (1 <= int(user_input) <= min_max[1]):
+            break
+        print("Invalid input")
+    if key == "no of dice":
+        no_of_dice = int(user_input)
+        line()
+        print(f"Number of dice has been changed into {user_input}")
+    elif key == "no of players":
+        no_of_player = int(user_input)
+        print(f"Number of Player has been changed into {user_input}")
+    elif key == "target score":
+        target_score = int(user_input)
+        print(f"Target score has been changed into {user_input}")
+    else:
+        print("something went wrong.")
+        print("Exiting..")
+        exit()
+    setting_saver()
+def setting_saver():
+    global no_of_dice, target_score, no_of_player
+    new_setting = {
+    "no of dice": no_of_dice,
+    "no of player": no_of_player,
+    "target score": target_score
+    }
+
+    setting_file_path = setting_file_path = os.path.dirname(os.path.abspath(__file__)) + "/setting.json"
+    with open(setting_file_path, "w") as f:
+        json.dump(new_setting, f, indent= 4)
+
 
 def mode_asker():
     line()
     print("Welcome to Pig game:")
     line()
     for index, option in enumerate(options, start=1):
-        print(str(index)+")" , option)
+        print(str(index)+")", option)
     line()
     while True:
         mode = custom_input(f"Enter the your choice(1-{len(options)}): ")
@@ -231,56 +242,38 @@ def game_mods():
     mods = {
         "no of dice" : [[1, 10], "number"],
         "no of players": [[1, 10], "number"],
-        "target score": [[1, 10], "number"]
+        "target score": [[100, 500], "number"]
     }
     
     print("    Available mods: ")
     for index, mod in enumerate(mods, start=1):
         print(f"    {index}) {mod}")
     print("")
-    # while True:
-    #     try:
-    #         index = int(custom_input(f"Enter the mod index you want to change(1-{ len(mods)}): "))
-    #     except ValueError:
-    #         print("invalid input.")
-    #         continue
-    #     if not (0 < int(index) <= len(mods)):
-    #         print("Invalid option please try again")
-    #     else:
-    #         function = mods_function[index -1]
-    #         function()
-    #         break
-    
+
     while True:
         try:
             option = int(custom_input(f"Enter the index of option you want to chagen (1 - {len(mods)}): "))
         except:
             print("Invalid input")
+            line()
+            continue
         if not (1 <= option <= len(mods)):
             print("Invalid option")
+            line()
+            continue
         key = [key for key in mods][option - 1]
         min_max, number = mods[key]
-        print(key, min_max, number)
-        print(type(key))
-        print(type(min_max))
-        print(type(number))
-
         setting_changer(key, min_max, number)
         break
-
-        
-        
-
-
 def play():
     # region basic rule displayer
     print("Basic rule:")
-    print(f"   Dice : {no_of_dice}\n   Player : {no_of_player}")
+    print(f"   Dice : {no_of_dice}\n   Player : {no_of_player} \n   Target Score : {target_score}")
     # endregion
     while True:
         line()
         change_setting = custom_input("Do you want to change setting before playing (yes/no): ")
-        # line()
+        line()
         if change_setting in ["yes", "y"]:
            game_mods()
            break
@@ -288,7 +281,6 @@ def play():
             break
         else:
             print("Invalid option. Enter 'yes' or 'no'")
-    line()
     player_and_score = player_and_score_asker()
     score_displayer(player_and_score)
     # region game stated notifier
@@ -343,26 +335,22 @@ def play():
 
 
 def main():
-    # setting_loder()
-    game_mods()
-
-
-    # while True:
-    #     mode = mode_asker()
-    #     match mode:
-    #         case 1:
-    #             view_rules()
-    #         case 2:
-    #             play()
-    #         case 3:
-    #             game_mods()
-    #         case 4:
-    #             records_and_history()
-    #         case _:
-    #             print("Exiting...")
-    #             line()
-    # player_and_score = {'ankit': 752, 'anmol': 111, 'vim': 75,'ankits': 5, 'anmols': 11, 'vims': 752}
-    # winner_notifier(player_and_score)
+    setting_loder()
+    while True:
+        mode = mode_asker()
+        match mode:
+            case 1:
+                view_rules()
+            case 2:
+                play()
+            case 3:
+                game_mods()
+            case 4:
+                records_and_history()
+            case 5:
+                print("Exiting...")
+                line()
+                exit()
 
 if __name__ == "__main__":
     main()
