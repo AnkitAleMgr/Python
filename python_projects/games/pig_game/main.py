@@ -1,12 +1,9 @@
-import random, logging, os, json
+import random, logging, os, json, ast
+from traceback import print_tb
 
 length = 140
-# options = ["View Rules 📜", "Play 🎮", "Game Mods ⚙️", "Records and History 🗂️", "Quit ❌"]
 options = ["View Rules ", "Play ", "Game Mods ", "Records and History ", "Quit"]
 
-# setting = None
-
-# no_of_dice = setting["no_of_dice"]
 no_of_dice = None
 no_of_player = None
 target_score = None
@@ -196,7 +193,7 @@ def setting_saver():
     "target score": target_score
     }
 
-    setting_file_path = setting_file_path = os.path.dirname(os.path.abspath(__file__)) + "/setting.json"
+    setting_file_path = os.path.dirname(os.path.abspath(__file__)) + "/setting.json"
     with open(setting_file_path, "w") as f:
         json.dump(new_setting, f, indent= 4)
 
@@ -276,7 +273,6 @@ def play():
         line()
         if change_setting in ["yes", "y"]:
            game_mods()
-           break
         elif change_setting in ["no", "n"]:
             break
         else:
@@ -331,10 +327,47 @@ def play():
     winner_notifier(player_and_score)
     print("Game has  ended")
 
-    # logger(player_and_score)
+    logger(player_and_score)
+def records_and_history():
+    path = os.path.dirname(os.path.abspath(__file__))+ "/history.log"        
+    try:
+        if os.path.exists(path):
+            with open(path, "r") as f:
+                content = f.read()
+        else:
+            raise FileNotFoundError
+    except FileNotFoundError as e:
+        print("Error : ",e)
+
+    # clearing terminal
+    if os.name == "nt":
+        os.system("clr")
+        os.system("clr")
+    else:
+        os.system("clear")
+        os.system("clear")
+    # seprating the data
+    for lines in content.splitlines():
+        # printing data
+        try:
+            date, info_type, score = lines.split(" - ")
+            score = ast.literal_eval(score)
+            print()
+            print(f"Date: {date[:19]}")
+            print("------------------------")
+            print("|"+"   Name   "+"|"+"   Score   "+"|")
+            print("------------------------")
+            for name, point in score.items():
+                print(f"|{name.capitalize():^10}|{point:^11}|")
+            print("------------------------")
+        except Exception as e:
+            print("Invalid data format found in histroy", e)
+            print("Exiting..")
+            exit()
 
 
 def main():
+    # records_and_history()
     setting_loder()
     while True:
         mode = mode_asker()
