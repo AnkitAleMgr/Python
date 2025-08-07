@@ -275,7 +275,7 @@ def play():
             break
         else:
             print("Invalid option. Enter 'yes' or 'no'")
-    player_and_score = player_and_score_asker()
+    player_and_score = player_and_score_asker() #-------------------------------> one attribute
     score_displayer(player_and_score)
     # region game stated notifier
     print("")
