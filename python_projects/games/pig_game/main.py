@@ -1,13 +1,15 @@
-import random, logging, os, json, ast
-from traceback import print_tb
+import random, logging, os, json, ast, sys
+sys.path.insert(2, "/Users/ankit/Documents/Self/Python/animation")
+from exiting_animation import exit_
 
+# variable
 length = 140
 options = ["View Rules ", "Play ", "Game Mods ", "Records and History ", "Quit"]
-
 no_of_dice = None
 no_of_player = None
 target_score = None
 
+# functions
 def line() -> None:
     print("-"*length)
 def custom_input(prompt):
@@ -16,9 +18,7 @@ def custom_input(prompt):
     while True:
         user_input = input(prompt).strip().lower()
         if user_input in EXIT_SYMBOL:
-            print("Exiting....")
-            line()
-            exit()
+            exit_()
         if user_input == "":
             print("Empty input. Please fill the detail. ")
             line()
@@ -32,7 +32,7 @@ def player_and_score_asker():
         players.append(name)
     player_and_score = dict(zip(players, [0 for _ in range(len(players))]))
     return player_and_score
-def score_displayer(dictionary : dict[str : int]) -> None:
+def score_displayer(dictionary : dict[str, int]) -> None:
     line()
     print("")
     print(" Current score :")
@@ -46,7 +46,7 @@ def score_displayer(dictionary : dict[str : int]) -> None:
 def roll():
     rolls = []
     for i in range(no_of_dice):
-        roll = random.randrange(start=1 , stop= 7 )
+        roll = random.randint(1, 6)
         rolls.append(roll)
     dice_displayer(rolls)
     for i in rolls:
@@ -152,7 +152,6 @@ def setting_loder():
     setting_file_path = os.path.dirname(os.path.abspath(__file__)) + "/setting.json"
     while True:
         if os.path.exists(setting_file_path):
-            print("File found. Loding data...")
             with open(setting_file_path, "r") as f:
                 setting = json.load(f)
                 break
@@ -174,7 +173,7 @@ def setting_changer(key, min_max, number):
         no_of_dice = int(user_input)
         line()
         print(f"Number of dice has been changed into {user_input}")
-    elif key == "no of players":
+    elif key == "no of player":
         no_of_player = int(user_input)
         print(f"Number of Player has been changed into {user_input}")
     elif key == "target score":
@@ -182,8 +181,7 @@ def setting_changer(key, min_max, number):
         print(f"Target score has been changed into {user_input}")
     else:
         print("something went wrong.")
-        print("Exiting..")
-        exit()
+        exit_()
     setting_saver()
 def setting_saver():
     global no_of_dice, target_score, no_of_player
@@ -197,7 +195,7 @@ def setting_saver():
     with open(setting_file_path, "w") as f:
         json.dump(new_setting, f, indent= 4)
 
-
+# main option
 def mode_asker():
     line()
     print("Welcome to Pig game:")
@@ -238,7 +236,7 @@ def view_rules() -> None:
 def game_mods():
     mods = {
         "no of dice" : [[1, 10], "number"],
-        "no of players": [[1, 10], "number"],
+        "no of player": [[1, 10], "number"],
         "target score": [[100, 500], "number"]
     }
     
@@ -341,8 +339,8 @@ def records_and_history():
 
     # clearing terminal
     if os.name == "nt":
-        os.system("clr")
-        os.system("clr")
+        os.system("cls")
+        os.system("cls")
     else:
         os.system("clear")
         os.system("clear")
@@ -362,12 +360,10 @@ def records_and_history():
             print("------------------------")
         except Exception as e:
             print("Invalid data format found in histroy", e)
-            print("Exiting..")
-            exit()
+            exit_()
 
-
+# main function
 def main():
-    # records_and_history()
     setting_loder()
     while True:
         mode = mode_asker()
@@ -381,9 +377,9 @@ def main():
             case 4:
                 records_and_history()
             case 5:
-                print("Exiting...")
-                line()
-                exit()
+                exit_()
 
+# entry point
 if __name__ == "__main__":
     main()
+    
