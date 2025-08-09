@@ -9,7 +9,6 @@ class Movie():
         print("Title",self.title)
         print("Duration",self.duration)
         print("Price $",self.price)
-        return ""
 
 class Customer():
 
