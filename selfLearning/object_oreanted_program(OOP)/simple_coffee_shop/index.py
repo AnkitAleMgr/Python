@@ -3,7 +3,7 @@ class Coffee:
     def __init__(self, name : str , size : str, price : float) -> None:
         self.name = name
         self.size = size
-        self.price = price
+        self.price = float(price)
     
     def display_info(self):
         print(f"Coffee Name: {self.name}")
