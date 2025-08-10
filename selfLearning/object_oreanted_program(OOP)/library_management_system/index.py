@@ -1,8 +1,8 @@
 class Book:
 
     def __init__(self, title : str , author : str, isbn : str , available : bool = True) -> None:
-        self.title = title
-        self.author = author
+        self.title = title.capitalize().strip()
+        self.author = author.capitalize().strip()
         self.isbn = isbn
         self.available = available
 
@@ -47,7 +47,7 @@ class Member:
 class Library:
 
     def __init__(self,name : str) -> None:
-        self.name = name
+        self.name = name.capitalize().strip()
         self.books = []
 
     def add_book(self, book : Book) -> None:
@@ -65,4 +65,10 @@ class Library:
 
 # main entry point
 if __name__ == "__main__":
-    pass
+    # Create 3 books and add them to the library
+
+    thor = Book(title="thor", author= "samgam", isbn="1234-5678-90",available= True)
+    spider_man = Book(title="spider man", author= "anup", isbn="1234-5678-900",available= True)
+    wonder_women = Book(title="wonder_women", author= "samir", isbn="1234-5678-89",available= True)
+
+    ankit_library = Library(name="ankit_library ")
