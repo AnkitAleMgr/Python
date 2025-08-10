@@ -1,4 +1,5 @@
 from abc import ABC
+from enum import member
 from data_manager import save_to_csv
 from exceptions import BookUnavailableError, InvalidMemberError
 from validators import is_valid_Librarian, is_valid_member, is_valid_book
@@ -12,7 +13,7 @@ class Book:
         self.available = available
         self.reserved_list = []
 
-    def __str__(self) -> None:
+    def __str__(self) -> str:
         return f"{self.title} by {self.author} ({'Available' if self.available else 'Checked out'})"
 
     def display_info(self) -> None:
@@ -29,7 +30,9 @@ class Book:
     def notify_next_reserve(self) -> None:
         if self.reserved_list:
             next_member = self.reserved_list.pop(0)
-            print(f"Notify {next_member.name}: {self.title} is now available for you.")
+            next_member.borrow_book(book = self, library = )
+
+            # print(f"Notify {next_member.name}: {self.title} is now available for you.")
 
     def dict_info(self) -> dict:
         return {
@@ -49,7 +52,7 @@ class Library:
         self.name = name.capitalize().strip()
         self.books = []
         self.members = []
-        self.libraians = []
+        self.librarians = []
 
         if Library._free_id:
             self.id = Library._free_id.pop(0)
@@ -58,17 +61,17 @@ class Library:
             Library._active_id += 1
         Library._libraries.append(self)
 
-    def __str__(self) -> None:
+    def __str__(self) -> str:
         return f"Library: {self.name} with {len(self.books)} books and {len(self.members)} members"
 
     def __del__(self) -> None:
         Library._free_id.append(self.id)
         print(f"{self.name} has been deleted.")
 
-    def dict_info(self):
+    def dict_info(self) -> dict
         return {
             "Id" : self.id,
-            "Name" : self.name,
+            "Name" : self.name
         }
 
     def add_member(self, member : object) -> None:
@@ -82,7 +85,7 @@ class Library:
         if not isinstance(librarian, Librarian):
             print("Error: Only Librarian instances can be added.")
             return
-        self.libraians.append(librarian)
+        self.librarians.append(librarian)
         print(f"{librarian.name} has been added to {self.name}")
 
     def add_book(self, book : Book) -> None:
@@ -94,7 +97,7 @@ class Library:
             self.books.remove(book)
             print(f"{book.title} has been removed form {self.name}.")
         else:
-            print(f"No book found name {self.book.title} in library {self.name}.")
+            print(f"No book found name {book.title} in library {self.name}.")
 
     def list_available_book(self) -> None:
         if not self.books:
@@ -123,34 +126,45 @@ class Library:
             print(f"No book found named {name} in {self.name}")
 
     def is_part_of(self, person: object) -> bool:
-        if isinstance(person , (Member, Librarian)):
-            if person in self.members or person in self.libraians:
-                return True
-        return False
+        return person in self.members or person in self.librarians
 
     def save_books(self) -> None:
         if self.books:
-            books = [book.dict_info() for book in self.books]
-            path = f"Library_{self.name}_{Library.id}"
-            save_to_csv(file_path= path , data= books)
+            save_to_csv([book.dict_info() for book in self.books], f"book_{self.id}.csv")
         else:
             print("No book has been added till now.")
+        
+    def save_libraries(self) -> None:
+        if Library._libraries:
+            save_to_csv([library.dict_info() for library in Library._libraries], f"libraries.csv")
+        else:
+            print("No library has been added till now")
 
-    def save_library(self) -> None:
-        save_to_csv([library.dict_into() for library in Library._libraries], f"Library_{self.id}")
-
-    def save_member(self) ->None:
-        pass
+    def save_members(self) ->None:
+        if self.members:
+            save_to_csv([member.dict_info() for member in self.members],f"member_{self.id}.csv")
+        else:
+            print("No library has been added till now")
+        
+    def save_librarians(self) -> None:
+        if self.librarians:
+            save_to_csv([librarian.dict_info() for librarian in self.librarians],f"librarian_{self.id}.csv")
+        else:
+            print("No library has been added till now")
 
 class Person(ABC):
 
-    def __init__(self, name : str, email : str, id : int) -> None:
+    _person_active_id = 1
+    _person_free_id = []
+
+    def __init__(self, name : str, email : str) -> None:
         self.name = name.capitalize().strip()
         self.email = email.strip()
-        try:
-            self.id = int(id)
-        except ValueError:
-            raise ValueError(f"Invalid id '{id}'. ID must be an integer.")
+        if Person._person_free_id:
+            self.id = Person._person_free_id.pop(0)
+        else:
+            self.id = Person._person_active_id
+            Person._person_active_id += 1
         
     def display_info(self) -> None:
         print("ID:",self.id)
@@ -169,12 +183,19 @@ class Person(ABC):
 
 class Librarian(Person):
     
-    def __init__(self, name: str, email: str, id : int, employed_id : int) -> None:
-        super().__init__(name, email, id)
-        try:
-            self.employed_id = int(employed_id)
-        except ValueError:
-            raise ValueError(f"Employed id {employed_id} need to be number")
+    _librarian_active_id = 1
+    _librarian_free_id = []
+
+    def __init__(self, name: str, email: str) -> None:
+        super().__init__(name, email)
+        if Librarian._librarian_free_id:
+            self.employed_id = Librarian._librarian_free_id.pop(0)
+        else:
+            self.employed_id = Librarian._librarian_active_id
+            Librarian._librarian_active_id += 1
+
+    def __str__(self) -> str:
+        return f"Name: {self.name} (Id: {self.id})"
 
     def add_book(self, book: Book, library: Library) -> None:  # noqa: F811
         if book:
@@ -188,28 +209,35 @@ class Librarian(Person):
     def view_all_book(self, library : Library) -> None:
         library.list_available_book()
         
-    def __str__(self):
-        return f"Library: {self.name} with {len(self.books)} books and {len(self.members)} members"
-
+    def dict_info(self) -> dict:
+        return {
+            "ID" : self.id,
+            "Employed ID" : self.employed_id, 
+            "Name" : self.name,
+            "Email" : self.email, 
+        }
+    
 class Member(Person):
 
-    def __init__(self, name: str, email: str, id : int, ) -> None:
-        super().__init__(name, email, id)
+    def __init__(self, name: str, email: str) -> None:
+        super().__init__(name, email)
         self.borrowed_book = []
 
+    def __str__(self) -> str:
+        return f"Member: {self.name} (ID: {self.id})"
+
     def borrow_book(self, book : Book, library : Library) -> None:
-        if library.is_part_of(self):
-            if not is_valid_book(book):
-                raise TypeError("borrow_book expects a Book object")
-            if book.available:
-                self.borrowed_book.append(book)
-                book.available = False
-                print(f"{book.title} has been borrowed by {self.name}")
-            else:
-                book.add_reserved(self)
-                raise BookUnavailableError(f"{book.title} is not available, added to reserve list.")
-        else:
+        if not library.is_part_of(self):
             raise Exception(f"{self.name} is not part of {library.name}")
+        if not is_valid_book(book):
+            raise TypeError("borrow_book expects a Book object")
+        if book.available:
+            self.borrowed_book.append(book)
+            book.available = False
+            print(f"{book.title} has been borrowed by {self.name}")
+        else:
+            book.add_reserved(self)
+            raise BookUnavailableError(f"{book.title} is not available, added to reserve list.")
 
     def return_book(self, book : Book) -> None:
         if book not in self.borrowed_book:
@@ -229,9 +257,12 @@ class Member(Person):
             print(f"{index}) {book.title} {book.isbn}")
         print("***********************************")
 
-    def __str__(self):
-        return f"Member: {self.name} (ID: {self.id})"
-
+    def dict_info(self) -> dict:
+        return {
+            "ID" : self.id,
+            "Name" : self.name,
+            "Email" : self.email, 
+        }
 
 # main entry point
 if __name__ == "__main__":
