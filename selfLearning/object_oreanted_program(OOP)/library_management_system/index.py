@@ -1,12 +1,7 @@
 from abc import ABC
 from data_manager import save_to_csv
-
-# excaption errors
-class BookUnavailableError(Exception):
-    pass
-class InvalidMemberError(Exception):
-    pass
-
+from exceptions import BookUnavailableError, InvalidMemberError
+from validators import is_valid_Librarian, is_valid_member, is_valid_book
 
 class Book:
 
@@ -16,6 +11,9 @@ class Book:
         self.isbn = isbn
         self.available = available
         self.reserved_list = []
+
+    def __str__(self) -> None:
+        return f"{self.title} by {self.author} ({'Available' if self.available else 'Checked out'})"
 
     def display_info(self) -> None:
         print("Title: ", self.title)
@@ -33,17 +31,46 @@ class Book:
             next_member = self.reserved_list.pop(0)
             print(f"Notify {next_member.name}: {self.title} is now available for you.")
 
-    def __str__(self):
-        return f"{self.title} by {self.author} ({'Available' if self.available else 'Checked out'})"
+    def dict_info(self) -> dict:
+        return {
+            "Title" : self.title,
+            "Author" : self.author,
+            "Isbn" : self.isbn,
+            "Available" : self.available
+        }
 
 class Library:
+
+    _libraries = []
+    _free_id = []
+    _active_id = 1
 
     def __init__(self,name : str) -> None:
         self.name = name.capitalize().strip()
         self.books = []
         self.members = []
         self.libraians = []
-        
+
+        if Library._free_id:
+            self.id = Library._free_id.pop(0)
+        else:
+            self.id = Library._active_id
+            Library._active_id += 1
+        Library._libraries.append(self)
+
+    def __str__(self) -> None:
+        return f"Library: {self.name} with {len(self.books)} books and {len(self.members)} members"
+
+    def __del__(self) -> None:
+        Library._free_id.append(self.id)
+        print(f"{self.name} has been deleted.")
+
+    def dict_info(self):
+        return {
+            "Id" : self.id,
+            "Name" : self.name,
+        }
+
     def add_member(self, member : object) -> None:
         if not isinstance(member, Member):
             print("Error: Only Member instances can be added.")
@@ -101,8 +128,16 @@ class Library:
                 return True
         return False
 
-    def __str__(self):
-        return f"Library: {self.name} with {len(self.books)} books and {len(self.members)} members"
+    def save_books(self) -> None:
+        if self.books:
+            books = [book.dict_info() for book in self.books]
+            path = f"Library_{self.name}_{Library.id}"
+            save_to_csv(file_path= path , data= books)
+        else:
+            print("No book has been added till now.")
+
+    def save_library(self) -> None:
+        save_to_csv([library.dict_into() for library in Library._libraries], f"Library_{self.id}")
 
 class Person(ABC):
 
@@ -193,18 +228,6 @@ class Member(Person):
 
     def __str__(self):
         return f"Member: {self.name} (ID: {self.id})"
-
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-def is_valid_book(obj : Book) -> bool:
-    return isinstance(obj, Book)
-
-def is_valid_member(obj : Member) -> bool:
-    return isinstance(obj, Member)
-
-def is_valid_Librarian(obj : Librarian) -> bool:
-    return isinstance(obj, Librarian)
-
 
 
 # main entry point
