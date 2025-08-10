@@ -139,6 +139,9 @@ class Library:
     def save_library(self) -> None:
         save_to_csv([library.dict_into() for library in Library._libraries], f"Library_{self.id}")
 
+    def save_member(self) ->None:
+        pass
+
 class Person(ABC):
 
     def __init__(self, name : str, email : str, id : int) -> None:
