@@ -1,5 +1,12 @@
 from abc import ABC
 
+# excaption errors
+class BookUnavailableError(Exception):
+    pass
+class InvalidMemberError(Exception):
+    pass
+
+
 class Book:
 
     def __init__(self, title : str , author : str, isbn : str , available : bool = True) -> None:
@@ -15,14 +22,37 @@ class Book:
         print("Isbn: ", self.isbn)
         print(f"Available: {'Yes' if self.available else 'No'}")
 
-    def is_reserved():
-        pass
+    def add_reserved(self, member : object) -> None:
+        if not is_valid_member(member):
+            raise InvalidMemberError("No such member found named", member)
+        self.reserved_list.append(member)
+    
+    def notify_next_reserve(self) -> None:
+        if self.reserved_list:
+            next_member = self.reserved_by.pop(0)
+            print(f"Notify {next_member.name}: {self.title} is now available for you.")
 
 class Library:
 
     def __init__(self,name : str) -> None:
         self.name = name.capitalize().strip()
         self.books = []
+        self.members = []
+        self.libraians = []
+        
+    def add_member(self, member : object) -> None:
+        if not isinstance(member, Member):
+            print("Error: Only Member instances can be added.")
+            return
+        self.members.append(member)
+        print(f"{member.name} has been added to {self.name}")
+
+    def add_librarian(self, librarian : object) -> None:
+        if not isinstance(librarian, Librarian):
+            print("Error: Only Librarian instances can be added.")
+            return
+        self.libraians.append(librarian)
+        print(f"{librarian.name} has been added to {self.name}")
 
     def add_book(self, book : Book) -> None:
         self.books.append(book)
@@ -58,6 +88,15 @@ class Library:
             for index,book in enumerate(found_book, start= 1):
                 print(f"{index}) {book.title} - {book.inbn} - {book.available}")
             print("***********************************")
+        else:
+            print(f"No book found named {name} in {self.name}")
+
+    def is_part_of(self, person: object) -> bool:
+        if isinstance(person , (Member, Librarian)):
+            if person in self.members or person in self.libraians:
+                return True
+        return False
+
 
 class Person(ABC):
 
@@ -105,24 +144,25 @@ class Librarian(Person):
     def view_all_book(self, library : Library) -> None:
         library.list_available_book()
         
-    
-
 class Member(Person):
 
     def __init__(self, name: str, email: str, id : int, ) -> None:
         super().__init__(name, email, id)
         self.borrowed_book = []
 
-
-    def borrow_book(self, book : Book) -> None:
-        if book.available:
-            self.borrowed_book.append(book)
-            book.available = False
-            print(f"{book.title} has been borrowed by {self.name}")
+    def borrow_book(self, book : Book, library : Library) -> None:
+        if library.is_part_of(self):
+            if is_valid_book(book):
+                raise TypeError("borrow_book expects a Book object")
+            if book.available:
+                self.borrowed_book.append(book)
+                book.available = False
+                print(f"{book.title} has been borrowed by {self.name}")
+            else:
+                book.add_reserved(self)
+                raise BookUnavailableError(f"{book.title} is not available, added to reserve list.")
         else:
-            print(f"{book.title} is not availabe")
-            book.reserved_list.append(self)
-            print(f"{self.name} has been a dded in reserve list for {book.title}")
+            raise Exception(f"{self.name} is not part of {library.name}")
 
     def return_book(self, book : Book) -> None:
         if book not in self.borrowed_book:
@@ -131,7 +171,7 @@ class Member(Person):
         self.borrowed_book.remove(book)
         book.available = True
         print(f"{book.title} has been return by {self.name}.")
-        book.is_reserved(book)
+        book.notify_next_reserve()
 
     def view_borrowed_book(self) -> None:
         if not self.borrowed_book:
@@ -141,6 +181,18 @@ class Member(Person):
         for index, book in enumerate(self.borrowed_book, start= 1):
             print(f"{index}) {book.title} {book.isbn}")
         print("***********************************")
+
+
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+def is_valid_book(obj : Book) -> bool:
+    return isinstance(obj, Book)
+
+def is_valid_member(obj : Member) -> bool:
+    return isinstance(obj, Member)
+
+def is_valid_Librarian(obj : Librarian) -> bool:
+    return isinstance(obj, Librarian)
 
 
 
