@@ -10,12 +10,12 @@ class Book:
         print("Title: ", self.title)
         print("Author: ", self.author)
         print("Isbn: ", self.isbn)
-        print("Available: ", self.available)
+        print(f"Available: {'Yes' if self.available else 'No'}")
 
 class Member:
 
     def __init__(self, name: str) -> None:
-        self.name = name
+        self.name = name.capitalize().strip()
         self.borrowed_book = []
 
 
@@ -28,15 +28,15 @@ class Member:
             print(f"{book.title} is not availabe")
 
     def return_book(self, book : Book) -> None:
-        if book not in self.borrow_book:
-            print(f"There is not book name {book.title} to return.")   
+        if book not in self.borrowed_book:
+            print(f"{self.name} hasn't borrowed a book name {book.title} to return.")   
             return
         self.borrowed_book.remove(book)
         book.available = True
-        print(f"{book.title} has been return.")
+        print(f"{book.title} has been return by {self.name}.")
 
     def view_borrowed_book(self) -> None:
-        if not self.borrow_book:
+        if not self.borrowed_book:
             print("No book has been borrowed")
             return
         print("********** Borrowed Book **********")
@@ -57,18 +57,42 @@ class Library:
         if not self.books:
             print("No book has been added till now")
             return
+        count = 1
         print("********** Available Book **********")
         for book in self.books:
             if book.available:
-                print("Book")
+                # print(f"{Book.__name__}")
+                print(f"{count}) {book.title}")
+                count += 1
         print("********** Available Book **********")
 
 # main entry point
 if __name__ == "__main__":
-    # Create 3 books and add them to the library
 
+    # Create 3 books and add them to the library
     thor = Book(title="thor", author= "samgam", isbn="1234-5678-90",available= True)
     spider_man = Book(title="spider man", author= "anup", isbn="1234-5678-900",available= True)
     wonder_women = Book(title="wonder_women", author= "samir", isbn="1234-5678-89",available= True)
 
-    ankit_library = Library(name="ankit_library ")
+    universal_library = Library(name="universal_library")
+    universal_library.add_book(thor)
+    universal_library.add_book(spider_man)
+    universal_library.add_book(wonder_women)
+
+    # Create a member
+    ankit_member = Member("Ankit")
+
+    # The member borrows one book
+    ankit_member.borrow_book(book= thor)
+
+    # view membre borrowed book:
+    ankit_member.view_borrowed_book()
+
+    # Display available books after borrowing
+    universal_library.list_available_book()
+
+    # The member returns the book
+    ankit_member.return_book(thor)
+
+    # Display available books after returning
+    universal_library.list_available_book()
