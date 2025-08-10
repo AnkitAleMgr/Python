@@ -25,13 +25,16 @@ class Book:
 
     def add_reserved(self, member : object) -> None:
         if not is_valid_member(member):
-            raise InvalidMemberError("No such member found named", member)
+            raise InvalidMemberError(f"No such member found named {member.name}")
         self.reserved_list.append(member)
     
     def notify_next_reserve(self) -> None:
         if self.reserved_list:
-            next_member = self.reserved_by.pop(0)
+            next_member = self.reserved_list.pop(0)
             print(f"Notify {next_member.name}: {self.title} is now available for you.")
+
+    def __str__(self):
+        return f"{self.title} by {self.author} ({'Available' if self.available else 'Checked out'})"
 
 class Library:
 
@@ -87,7 +90,7 @@ class Library:
         if found_book:
             print("********** Matching Book **********")
             for index,book in enumerate(found_book, start= 1):
-                print(f"{index}) {book.title} - {book.inbn} - {book.available}")
+                print(f"{index}) {book.title} - {book.isbn} - {book.available}")
             print("***********************************")
         else:
             print(f"No book found named {name} in {self.name}")
@@ -98,6 +101,8 @@ class Library:
                 return True
         return False
 
+    def __str__(self):
+        return f"Library: {self.name} with {len(self.books)} books and {len(self.members)} members"
 
 class Person(ABC):
 
@@ -145,6 +150,9 @@ class Librarian(Person):
     def view_all_book(self, library : Library) -> None:
         library.list_available_book()
         
+    def __str__(self):
+        return f"Library: {self.name} with {len(self.books)} books and {len(self.members)} members"
+
 class Member(Person):
 
     def __init__(self, name: str, email: str, id : int, ) -> None:
@@ -153,7 +161,7 @@ class Member(Person):
 
     def borrow_book(self, book : Book, library : Library) -> None:
         if library.is_part_of(self):
-            if is_valid_book(book):
+            if not is_valid_book(book):
                 raise TypeError("borrow_book expects a Book object")
             if book.available:
                 self.borrowed_book.append(book)
@@ -183,6 +191,8 @@ class Member(Person):
             print(f"{index}) {book.title} {book.isbn}")
         print("***********************************")
 
+    def __str__(self):
+        return f"Member: {self.name} (ID: {self.id})"
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
