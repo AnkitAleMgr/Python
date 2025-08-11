@@ -337,6 +337,7 @@ class Member(Person):
 
 # main entry point
 if __name__ == "__main__":
+    pass
     # #region creating library:
     # united_library = Library(name= "United library")
     # oxford_library = Library(name = "Oxford library")
@@ -483,4 +484,4 @@ if __name__ == "__main__":
     # book_3 = Book(title="The Last Horizon", author="Evelyn Harper", isbn="200-300-103", available=True)
 
     # united_library.save_libraries_to_csv()
-    pass
+    
