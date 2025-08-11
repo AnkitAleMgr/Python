@@ -7,3 +7,5 @@ class InvalidLibrarianError(Exception):
     pass
 class NotBookError(Exception):
     pass
+class AlreadyBelongsToLibraryError(Exception):
+    pass
