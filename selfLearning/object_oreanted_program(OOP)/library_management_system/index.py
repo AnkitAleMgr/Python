@@ -27,6 +27,7 @@ class Book:
         if not is_valid_member(member):
             raise InvalidMemberError(f"No such member found named {member.name}")
         self.reserved_list.append(member)
+        print(f"{self.title} have bee reserved for {member.name}")
     
     def notify_next_reserve(self) -> None:
         if self.reserved_list:
@@ -100,6 +101,17 @@ class Library:
         else:
             print(f"No book found name {book.title} in library {self.name}.")
 
+    def list_all_book(self) -> None:
+        if not self.books:
+            print("No book has been added till now")
+            return
+        count = 1
+        print("************ All Book ************")
+        for book in self.books:
+            print(f"{count}) {book.title} {book.isbn} {book.available}")
+            count += 1
+        print("***********************************")
+
     def list_available_book(self) -> None:
         if not self.books:
             print("No book has been added till now")
@@ -133,7 +145,8 @@ class Library:
             save_to_csv([book.dict_info() for book in self.books], f"book_{self.id}.csv")
         else:
             print("No book has been added till now.")
-        
+
+    @classmethod  
     def save_libraries(self) -> None:
         if Library._libraries:
             save_to_csv([library.dict_info() for library in Library._libraries], "libraries.csv")
@@ -241,10 +254,11 @@ class Member(Person):
         if book.available:
             self.borrowed_book.append(book)
             book.available = False
+            book.library = library
             print(f"{book.title} has been borrowed by {self.name}")
         else:
             book.add_reserved(self)
-            raise BookUnavailableError(f"{book.title} is not available, added to reserve list.")
+            # raise BookUnavailableError(f"{book.title} is not available, added to reserve list.")
 
     def return_book(self, book : Book) -> None:
         if book not in self.borrowed_book:
@@ -277,6 +291,7 @@ if __name__ == "__main__":
     #region creating library:
     united_library = Library(name= "United library")
     oxford_library = Library(name = "Oxford library")
+    Legex_library = Library(name = "legex library")
     #endregion
 
     #region creating book:
@@ -368,18 +383,34 @@ if __name__ == "__main__":
     line()
     # looking it borrowed book are showing false
     united_library.find_book_by_title("the last horizon")
-    
+
     line()
     # returnign few book:
     ankit_member_1.return_book(book_1)
 
+    line()
+    # checking it after returning the book it is set to available
     united_library.find_book_by_title("the last horizon")
 
+    line()
+    # checking if brrowing system works properly
+    ankit_member_1.borrow_book(book=book_1, library=united_library)
+    sophia_member_2.borrow_book(book=book_1, library=united_library)
+    ankit_member_1.return_book(book_1)
 
+    line()
+    # check if list all book works
+    oxford_library.list_all_book()
 
+    line()
+    # checking if data are retrive proerly from every class
+    Library.save_libraries()
+    united_library.save_books()
+    united_library.save_librarians()
+    united_library.save_members()
 
-
-
-    
-    
-    
+    line()
+    Library.save_libraries()
+    oxford_library.save_books()
+    oxford_library.save_librarians()
+    oxford_library.save_members()
