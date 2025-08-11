@@ -1,7 +1,7 @@
 from abc import ABC
-from re import U
+from helper import line
 from data_manager import save_to_csv
-from exceptions import BookUnavailableError, InvalidMemberError
+from exceptions import BookUnavailableError, InvalidMemberError, NotBookError
 from validators import is_valid_librarian, is_valid_member, is_valid_book
 
 class Book:
@@ -39,7 +39,6 @@ class Book:
     def dict_info(self) -> dict:
         return {
             "Title" : self.title,
-            "Author" : self.author,
             "Isbn" : self.isbn,
             "Available" : self.available
         }
@@ -87,10 +86,13 @@ class Library:
         print(f"{librarian.name} has been added to {self.name}")
 
     def add_book(self, book : Book) -> None:
-        self.books.append(book)
-        self.books = self
-        print(f"{book.title} has been added in {self.name}")
-    
+        if is_valid_book(book):
+            self.books.append(book)
+            # self.books = self
+            print(f"{book.title} has been added in {self.name}")
+        else:
+            raise NotBookError(f"{book} is not a book.")
+
     def remove_book(self, book: Book) ->None :
         if book in self.books:
             self.books.remove(book)
@@ -106,8 +108,7 @@ class Library:
         print("********** Available Book **********")
         for book in self.books:
             if book.available:
-                # print(f"{Book.__name__}")
-                print(f"{count}) {book.title}")
+                print(f"{count}) {book.title} {book.isbn}")
                 count += 1
         print("***********************************")
 
@@ -124,8 +125,8 @@ class Library:
         else:
             print(f"No book found named {name} in {self.name}")
 
-    def is_part_of(self, person: object) -> bool:
-        return person in self.members or person in self.librarians
+    def is_part_of(self, obj : object) -> bool:
+        return obj in self.members or obj in self.librarians
 
     def save_books(self) -> None:
         if self.books:
@@ -198,15 +199,22 @@ class Librarian(Person):
 
     def add_book(self, book: Book, library: Library) -> None:  # noqa: F811
         if is_valid_book(book):
-            library.add_book(book)
+            if library.is_part_of(self):
+                library.add_book(book)
+            else:
+                print(f"{self.name} is not part of {library.name}.")
         else:
             print(f"No book found name {book.title}")
 
     def remove_book(self, book : Book, library : Library) -> None:
-        library.remove_book(book)
+        if library.is_part_of(self):
+            library.remove_book(book)
 
     def view_all_book(self, library : Library) -> None:
-        library.list_available_book()
+        if library.is_part_of(self):
+            library.list_available_book()
+        else:
+            print(f"{self.name} is not part of {library.name}")
         
     def dict_info(self) -> dict:
         return {
@@ -266,22 +274,110 @@ class Member(Person):
 # main entry point
 if __name__ == "__main__":
 
-    # creating library:
-    united_library = Library(name= "United_library")
+    #region creating library:
+    united_library = Library(name= "United library")
+    oxford_library = Library(name = "Oxford library")
+    #endregion
+
+    #region creating book:
+    book_1 = Book(title="The Last Horizon", author="Evelyn Harper", isbn="200-300-101", available=True)
+    book_2 = Book(title="Shadows of the Deep", author="Marcus Reid", isbn="200-300-102", available=True)
+    book_3 = Book(title="The Clockmaker's Paradox", author="Isabella Monroe", isbn="200-300-103", available=True)
+    book_4 = Book(title="Whispers in the Fog", author="Liam Blackwood", isbn="200-300-104", available=True)
+    book_5 = Book(title="Crimson Skies", author="Sofia Winters", isbn="200-300-105", available=True)
+    book_6 = Book(title="Echoes of Eternity", author="Noah Carter", isbn="200-300-106", available=True)
+    book_7 = Book(title="The Glass Labyrinth", author="Ava Sterling", isbn="200-300-107", available=True)
+    book_8 = Book(title="Beneath the Silver Moon", author="Ethan Sinclair", isbn="200-300-108", available=True)
+    book_9 = Book(title="The Forgotten Kingdom", author="Clara Davenport", isbn="200-300-109", available=True)
+    book_10 = Book(title="Storms of the Midnight Sea", author="James Aldridge", isbn="200-300-110", available=True)
+    #endregion
     
-    # creating book:
-    thor_book_1 = Book(title="Thor", author="Thomes selvi", isbn="100-100-100", available= True)
-    thor_book_2 = Book(title="Thor", author="Thomes selvi", isbn="100-100-101", available= True)
-    thor_book_3 = Book(title="Thor", author="Thomes selvi", isbn="100-100-102", available= True)
-    spider_man_book_1 = Book(title="smider man", author="Alisha Beath", isbn="100-100-200", available= True)
+    #region creating member:
+    ankit_member_1 = Member(name="Ankit Ale", email="anmolankit00@gmail.com")
+    sophia_member_2 = Member(name="Sophia Reed", email="sophia.reed@example.com")
+    liam_member_3 = Member(name="Liam Brooks", email="liam.brooks@example.com")
+    olivia_member_4 = Member(name="Olivia Carter", email="olivia.carter@example.com")
+    ethan_member_5 = Member(name="Ethan Smith", email="ethan.smith@example.com")
+    ava_member_6 = Member(name="Ava Johnson", email="ava.johnson@example.com")
+    noah_member_7 = Member(name="Noah Bennett", email="noah.bennett@example.com")
+    mia_member_8 = Member(name="Mia Robinson", email="mia.robinson@example.com")
+    lucas_member_9 = Member(name="Lucas Turner", email="lucas.turner@example.com")
+    isabella_member_10 = Member(name="Isabella Foster", email="isabella.foster@example.com")
+    #endregion
+    
+    #region creating librarian:
+    ankit_librarian_1 = Librarian(name="Ankit Ale", email="anmolankit00@gmail.com")
+    sophia_librarian_2 = Librarian(name="Sophia Reed", email="sophia.reed@example.com")
+    liam_librarian_3 = Librarian(name="Liam Brooks", email="liam.brooks@example.com")
+    olivia_librarian_4 = Librarian(name="Olivia Carter", email="olivia.carter@example.com")
+    ethan_librarian_5 = Librarian(name="Ethan Smith", email="ethan.smith@example.com")
+    mia_librarian_6 = Librarian(name="Mia Robinson", email="mia.robinson@example.com")
+    lucas_librarian_7 = Librarian(name="Lucas Turner", email="lucas.turner@example.com")
+    #endregion
 
-    # creating member:
-    ankit_member_1 = Member(name= "Ankit Ale", email="anmolankit00@gmail.com")
+    line()
+    #region adding book into library so that they can be lended and stored
+    united_library.add_book(book_1)
+    oxford_library.add_book(book_2)
+    #endregion
 
-    # creating librarian:
-    ankit_librarian_1 = Librarian(name= "Ankit Ale", email="anmolankit00@gmail.com")
+    line()
+    #region adding member and librarian to library:
+    # member
+    united_library.add_member(ankit_member_1)
+    united_library.add_member(sophia_member_2)
+    united_library.add_member(liam_member_3)
+    oxford_library.add_member(olivia_member_4)
+    oxford_library.add_member(ethan_member_5)
+    oxford_library.add_member(ava_member_6)
+    
+    # libraraian
+    united_library.add_librarian(ankit_librarian_1)
+    united_library.add_librarian(sophia_librarian_2)
+    oxford_library.add_librarian(liam_librarian_3)
+    oxford_library.add_librarian(mia_librarian_6)
+    oxford_library.add_librarian(lucas_librarian_7)
+    #endregion
 
-    # ankit_librarian_1.
+    line()
+    #region trying to add books with librarina:
+    ethan_librarian_5.add_book(book_3, united_library)
+    ankit_librarian_1.add_book(book_4, united_library)
+    ankit_librarian_1.add_book(book_5, united_library)
+    lucas_librarian_7.add_book(book_6, oxford_library)
+    lucas_librarian_7.add_book(book_7, oxford_library)
+    lucas_librarian_7.add_book(book_8, oxford_library)
+    #endregion
+
+    line()
+    # checking if book has been added to library or not
+    united_library.list_available_book()
+    oxford_library.list_available_book()
+    
+    # line()
+    # checking for mathcing title
+    # united_library.find_book_by_title("iron man")
+
+    line()
+    # borrowing few books 
+    ankit_member_1.borrow_book(book=book_1, library=united_library)
+    sophia_member_2.borrow_book(book=book_2, library=united_library)
+    ethan_member_5.borrow_book(book_6, oxford_library)
+    ava_member_6.borrow_book(book_5, oxford_library)
+
+    line()
+    # looking it borrowed book are showing false
+    united_library.find_book_by_title("the last horizon")
+    
+    line()
+    # returnign few book:
+    ankit_member_1.return_book(book_1)
+
+    united_library.find_book_by_title("the last horizon")
+
+
+
+
 
 
     
