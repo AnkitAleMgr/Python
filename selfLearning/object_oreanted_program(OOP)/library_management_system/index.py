@@ -1,8 +1,8 @@
 from abc import ABC
-from enum import member
+from re import U
 from data_manager import save_to_csv
 from exceptions import BookUnavailableError, InvalidMemberError
-from validators import is_valid_Librarian, is_valid_member, is_valid_book
+from validators import is_valid_librarian, is_valid_member, is_valid_book
 
 class Book:
 
@@ -12,6 +12,7 @@ class Book:
         self.isbn = isbn
         self.available = available
         self.reserved_list = []
+        self.library = None
 
     def __str__(self) -> str:
         return f"{self.title} by {self.author} ({'Available' if self.available else 'Checked out'})"
@@ -30,10 +31,11 @@ class Book:
     def notify_next_reserve(self) -> None:
         if self.reserved_list:
             next_member = self.reserved_list.pop(0)
-            next_member.borrow_book(book = self, library = )
-
-            # print(f"Notify {next_member.name}: {self.title} is now available for you.")
-
+            try:
+                next_member.borrow_book(book = self, library = self.library)
+            except Exception as e:
+                print(f"Failed to lend {self.title} to {next_member.name}: {e}")
+                
     def dict_info(self) -> dict:
         return {
             "Title" : self.title,
@@ -62,13 +64,9 @@ class Library:
         Library._libraries.append(self)
 
     def __str__(self) -> str:
-        return f"Library: {self.name} with {len(self.books)} books and {len(self.members)} members"
+        return f"Library: {self.name} with {len(self.books)} books and {len(self.members)} members and {len(self.librarians)} librarians."
 
-    def __del__(self) -> None:
-        Library._free_id.append(self.id)
-        print(f"{self.name} has been deleted.")
-
-    def dict_info(self) -> dict
+    def dict_info(self) -> dict:
         return {
             "Id" : self.id,
             "Name" : self.name
@@ -90,12 +88,13 @@ class Library:
 
     def add_book(self, book : Book) -> None:
         self.books.append(book)
+        self.books = self
         print(f"{book.title} has been added in {self.name}")
     
     def remove_book(self, book: Book) ->None :
         if book in self.books:
             self.books.remove(book)
-            print(f"{book.title} has been removed form {self.name}.")
+            print(f"{book.title} has been removed from {self.name}.")
         else:
             print(f"No book found name {book.title} in library {self.name}.")
 
@@ -136,7 +135,7 @@ class Library:
         
     def save_libraries(self) -> None:
         if Library._libraries:
-            save_to_csv([library.dict_info() for library in Library._libraries], f"libraries.csv")
+            save_to_csv([library.dict_info() for library in Library._libraries], "libraries.csv")
         else:
             print("No library has been added till now")
 
@@ -144,13 +143,13 @@ class Library:
         if self.members:
             save_to_csv([member.dict_info() for member in self.members],f"member_{self.id}.csv")
         else:
-            print("No library has been added till now")
+            print("No member has been added till now")
         
     def save_librarians(self) -> None:
         if self.librarians:
-            save_to_csv([librarian.dict_info() for librarian in self.librarians],f"librarian_{self.id}.csv")
+            save_to_csv([librarian.dict_info() for librarian in self.librarians], f"librarian_{self.id}.csv")
         else:
-            print("No library has been added till now")
+            print("No librarians has been added till now")
 
 class Person(ABC):
 
@@ -198,7 +197,7 @@ class Librarian(Person):
         return f"Name: {self.name} (Id: {self.id})"
 
     def add_book(self, book: Book, library: Library) -> None:  # noqa: F811
-        if book:
+        if is_valid_book(book):
             library.add_book(book)
         else:
             print(f"No book found name {book.title}")
@@ -266,31 +265,25 @@ class Member(Person):
 
 # main entry point
 if __name__ == "__main__":
-    pass
-    # # Create 3 books and add them to the library
-    # thor = Book(title="thor", author= "samgam", isbn="1234-5678-90",available= True)
-    # spider_man = Book(title="spider man", author= "anup", isbn="1234-5678-900",available= True)
-    # wonder_women = Book(title="wonder_women", author= "samir", isbn="1234-5678-89",available= True)
 
-    # universal_library = Library(name="universal_library")
-    # universal_library.add_book(thor)
-    # universal_library.add_book(spider_man)
-    # universal_library.add_book(wonder_women)
+    # creating library:
+    united_library = Library(name= "United_library")
+    
+    # creating book:
+    thor_book_1 = Book(title="Thor", author="Thomes selvi", isbn="100-100-100", available= True)
+    thor_book_2 = Book(title="Thor", author="Thomes selvi", isbn="100-100-101", available= True)
+    thor_book_3 = Book(title="Thor", author="Thomes selvi", isbn="100-100-102", available= True)
+    spider_man_book_1 = Book(title="smider man", author="Alisha Beath", isbn="100-100-200", available= True)
 
-    # # Create a member
-    # ankit_member = Member("Ankit")
+    # creating member:
+    ankit_member_1 = Member(name= "Ankit Ale", email="anmolankit00@gmail.com")
 
-    # # The member borrows one book
-    # ankit_member.borrow_book(book= thor)
+    # creating librarian:
+    ankit_librarian_1 = Librarian(name= "Ankit Ale", email="anmolankit00@gmail.com")
 
-    # # view membre borrowed book:
-    # ankit_member.view_borrowed_book()
+    ankit_librarian_1.
 
-    # # Display available books after borrowing
-    # universal_library.list_available_book()
 
-    # # The member returns the book
-    # ankit_member.return_book(thor)
-
-    # # Display available books after returning
-    # universal_library.list_available_book()
+    
+    
+    
