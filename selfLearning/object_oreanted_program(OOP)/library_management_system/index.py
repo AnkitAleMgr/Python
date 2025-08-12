@@ -281,10 +281,6 @@ class Librarian(Person):
         
     def dict_info(self) -> dict:
         return {
-            # "ID" : self.id,
-            # "Employed ID" : self.employed_id, 
-            # "Name" : self.name,
-            # "Email" : self.email, 
             "P.ID" : self.person_id,
             "L.ID" : self.librarian_id,
             "Name" : self.name,
