@@ -77,6 +77,8 @@ class Library:
     _libraries = []
     _free_id = []
     _active_id = 1
+    _emp_active_id = 1
+    _emp_free_id = []
 
     def __init__(self,name : str) -> None:
         self.name = name.capitalize().strip()
@@ -130,6 +132,12 @@ class Library:
             print("Error: Only Librarian instances can be added.")
             return
         self.librarians.append(librarian)
+        librarian.library = self
+        if Library._emp_free_id:
+            librarian.employed_id  = Library._emp_free_id.pop(0)
+        else:
+            librarian.employed_id = Library._emp_active_id
+            Library._emp_active_id += 1
         print(f"{librarian.name} has been added to {self.name}")
 
     def add_book(self, book : Book) -> None:
@@ -253,19 +261,28 @@ class Person(ABC):
 
 class Librarian(Person):
     
+    _librarians = []
     _librarian_active_id = 1
     _librarian_free_id = []
 
     def __init__(self, name: str, email: str) -> None:
         super().__init__(name, email)
+        self.library = None
+        self.employed_id = None
+
         if Librarian._librarian_free_id:
             self.employed_id = Librarian._librarian_free_id.pop(0)
         else:
             self.employed_id = Librarian._librarian_active_id
             Librarian._librarian_active_id += 1
+        Librarian._librarians.append(self)
 
     def __str__(self) -> str:
         return f"Name: {self.name} (Id: {self.id})"
+
+    @classmethod
+    def save_librarians_to_csv(self):
+        save_to_csv(data= [librarian.dict_info() for librarian in Librarian._librarians], file_name="Librarians/libraians.csv")
 
     def add_book(self, book: Book, library: Library) -> None:  # noqa: F811
         if is_valid_book(book):
@@ -288,10 +305,16 @@ class Librarian(Person):
         
     def dict_info(self) -> dict:
         return {
-            "ID" : self.id,
-            "Employed ID" : self.employed_id, 
+            # "ID" : self.id,
+            # "Employed ID" : self.employed_id, 
+            # "Name" : self.name,
+            # "Email" : self.email, 
+            "P.ID" : self.person_id,
+            "L.ID" : self.employed_id,
             "Name" : self.name,
             "Email" : self.email, 
+            "Library" : self.library,
+            "L.E.ID" : self.employed_id
         }
     
 class Member(Person):
@@ -378,22 +401,16 @@ if __name__ == "__main__":
     book3 = Book(title="The Last Horizon", author="Evelyn Harper", isbn="200-300-101", available=True)
     book2 = Book(title="The Last Horizon", author="Evelyn Harper", isbn="200-300-101", available=True)
     
-    ankit = Member("ankit","jflajlfa")
-    ankit = Librarian("ankit","jflajlfa")
-    safal = Member("ankit","jflajlfa")
+    ankit1 = Librarian("ankit","jflajlfa")
     nigga = Librarian("ankit","jflajlfa")
+    safal = Librarian("ankit","jflajlfa")
 
-    united_library.add_book(book=book1)
-    united_library.add_book(book=book2)
-    united_library.add_book(book=book3)
-    united_library.add_member(ankit)
-    # united_library.add_member(safal)
-    # united_library.add_member(safal)
-    # united_library.add_member(safal)
-    united_library.add_librarian(ankit)
-    united_library.add_librarian(nigga)
+    united_library.add_librarian(ankit1)
+    united_library.add_librarian(safal)
+    oxford_library.add_librarian(nigga)
 
-    Library.save_libraries_to_csv()
+    Librarian.save_librarians_to_csv()
+
     #region creating book:
     # book_1 = Book(title="The Last Horizon", author="Evelyn Harper", isbn="200-300-101", available=True)
     # book_2 = Book(title="Shadows of the Deep", author="Marcus Reid", isbn="200-300-102", available=True)
