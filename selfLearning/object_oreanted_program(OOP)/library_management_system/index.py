@@ -1,6 +1,4 @@
 from abc import ABC
-from re import M
-from sys import activate_stack_trampoline
 from helper import line
 from data_manager import save_to_csv
 from exceptions import BookUnavailableError, InvalidMemberError, NotBookError, AlreadyBelongsToLibraryError
