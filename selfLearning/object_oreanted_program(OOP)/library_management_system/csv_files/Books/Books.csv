@@ -1,0 +1,7 @@
+,Id,Title,Isbn,Available,Library,Borrower
+0,1,The last horizon,200-300-101,True,Library: United library (ID: 1),
+1,2,Shadows of the deep,200-300-102,False,Library: United library (ID: 1),Member: Anmol (Prson ID: 3)
+2,3,The clockmaker's paradox,200-300-103,False,Library: United library (ID: 1),Member: Anmol (Prson ID: 3)
+3,4,Whispers in the fog,200-300-104,False,Library: Oxford library (ID: 2),Member: Saurav (Prson ID: 4)
+4,5,Crimson skies,200-300-105,False,Library: Oxford library (ID: 2),Member: Safal (Prson ID: 5)
+5,6,Echoes of eternity,200-300-106,True,,

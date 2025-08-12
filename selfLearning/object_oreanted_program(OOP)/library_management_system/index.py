@@ -1,4 +1,6 @@
 from abc import ABC
+from re import M
+from sys import activate_stack_trampoline
 from helper import line
 from data_manager import save_to_csv
 from exceptions import BookUnavailableError, InvalidMemberError, NotBookError, AlreadyBelongsToLibraryError
@@ -31,10 +33,7 @@ class Book:
 
     @classmethod
     def save_books_to_csv(cls):
-        if Book._books:
-            save_to_csv([book.dict_info() for book in cls._books], "Books.csv")
-        else:
-            print("No Book has been created to save in csv.")
+        save_to_csv([book.dict_info() for book in cls._books], "Books/Books.csv")
 
     def del_book(self) -> None:
             Book._books.remove(self)
@@ -65,9 +64,12 @@ class Book:
                 
     def dict_info(self) -> dict:
         return {
+            "Id" : self.id,
             "Title" : self.title,
             "Isbn" : self.isbn,
-            "Available" : self.available
+            "Available" : self.available,
+            "Library": self.library,
+            "Borrower": self.borrower
         }
 
 class Library:
@@ -90,14 +92,11 @@ class Library:
         Library._libraries.append(self)
 
     def __str__(self) -> str:
-        return f"Library: {self.name} with {len(self.books)} books and {len(self.members)} members and {len(self.librarians)} librarians."
+        return f"Library: {self.name} (ID: {self.id})"
 
     @classmethod  
     def save_libraries_to_csv(self) -> None:
-        if Library._libraries:
-            save_to_csv([library.dict_info() for library in Library._libraries], "libraries.csv")
-        else:
-            print("No library has created to save in csv")
+        save_to_csv([library.dict_info() for library in Library._libraries], "Library/libraries.csv")
 
     def del_library(self):
         pass
@@ -105,14 +104,25 @@ class Library:
     def dict_info(self) -> dict:
         return {
             "Id" : self.id,
-            "Name" : self.name
+            "Name" : self.name,
+            "No of Books" : len(self.books) if self.books else 0,
+            "No of Librarians" : len(self.librarians) if self.librarians else 0,
+            "No of Members" : len(self.members) if self.members else 0,
         }
 
     def add_member(self, member : object) -> None:
+        _free_id = []
+        _active_id = 1
         if not isinstance(member, Member):
             print("Error: Only Member instances can be added.")
             return
         self.members.append(member)
+        if _free_id:
+            member.library_member_id = _free_id.pop(0)
+        else:
+            member.library_member_id = _active_id
+            Library._active_id += 1
+        member.library = self
         print(f"{member.name} has been added to {self.name}")
 
     def add_librarian(self, librarian : object) -> None:
@@ -194,7 +204,6 @@ class Library:
         else:
             print("No librarians has been added till now")
 
-
     # def save_books(self) -> None:
     #     if self.books:
     #         save_to_csv([book.dict_info() for book in self.books], f"book_{self.id}.csv")
@@ -222,9 +231,9 @@ class Person(ABC):
         self.name = name.capitalize().strip()
         self.email = email.strip()
         if Person._person_free_id:
-            self.id = Person._person_free_id.pop(0)
+            self.person_id = Person._person_free_id.pop(0)
         else:
-            self.id = Person._person_active_id
+            self.person_id = Person._person_active_id
             Person._person_active_id += 1
         
     def display_info(self) -> None:
@@ -287,12 +296,30 @@ class Librarian(Person):
     
 class Member(Person):
 
+    _members = []
+    _active_id = 1
+    _free_id = []
+
     def __init__(self, name: str, email: str) -> None:
         super().__init__(name, email)
         self.borrowed_book = []
+        self.library = None
+        self.library_member_id = None
+        
+        if Member._free_id:
+            self.member_id = Member._free_id.pop(0)
+        else:
+            self.member_id = Member._active_id
+            Member._active_id += 1
+        Member._members.append(self)
+        
 
     def __str__(self) -> str:
-        return f"Member: {self.name} (ID: {self.id})"
+        return f"Member: {self.name} (Prson ID: {self.person_id})"
+
+    @classmethod
+    def save_members_to_csv(self):
+        save_to_csv([member.dict_info() for member in Member._members], file_name= "Members/members.csv")
 
     def borrow_book(self, book : Book, library : Library) -> None:
         if not library.is_part_of(self):
@@ -330,21 +357,44 @@ class Member(Person):
 
     def dict_info(self) -> dict:
         return {
-            "ID" : self.id,
+            "P.ID" : self.person_id,
+            "M.ID" : self.member_id,
             "Name" : self.name,
             "Email" : self.email, 
+            "Library" : self.library,
+            "L.M.ID" : self.library_member_id
         }
 
 # main entry point
 if __name__ == "__main__":
     pass
     # #region creating library:
-    # united_library = Library(name= "United library")
-    # oxford_library = Library(name = "Oxford library")
-    # Legex_library = Library(name = "legex library")
+    united_library = Library(name= "United library")
+    oxford_library = Library(name = "Oxford library")
+    Legex_library = Library(name = "legex library")
     # #endregion
+    
+    book1 = Book(title="The Last Horizon", author="Evelyn Harper", isbn="200-300-101", available=True)
+    book3 = Book(title="The Last Horizon", author="Evelyn Harper", isbn="200-300-101", available=True)
+    book2 = Book(title="The Last Horizon", author="Evelyn Harper", isbn="200-300-101", available=True)
+    
+    ankit = Member("ankit","jflajlfa")
+    ankit = Librarian("ankit","jflajlfa")
+    safal = Member("ankit","jflajlfa")
+    nigga = Librarian("ankit","jflajlfa")
 
-    # #region creating book:
+    united_library.add_book(book=book1)
+    united_library.add_book(book=book2)
+    united_library.add_book(book=book3)
+    united_library.add_member(ankit)
+    # united_library.add_member(safal)
+    # united_library.add_member(safal)
+    # united_library.add_member(safal)
+    united_library.add_librarian(ankit)
+    united_library.add_librarian(nigga)
+
+    Library.save_libraries_to_csv()
+    #region creating book:
     # book_1 = Book(title="The Last Horizon", author="Evelyn Harper", isbn="200-300-101", available=True)
     # book_2 = Book(title="Shadows of the Deep", author="Marcus Reid", isbn="200-300-102", available=True)
     # book_3 = Book(title="The Clockmaker's Paradox", author="Isabella Monroe", isbn="200-300-103", available=True)
@@ -355,8 +405,8 @@ if __name__ == "__main__":
     # book_8 = Book(title="Beneath the Silver Moon", author="Ethan Sinclair", isbn="200-300-108", available=True)
     # book_9 = Book(title="The Forgotten Kingdom", author="Clara Davenport", isbn="200-300-109", available=True)
     # book_10 = Book(title="Storms of the Midnight Sea", author="James Aldridge", isbn="200-300-110", available=True)
-    # #endregion
-    
+    #endregion
+
     # #region creating member:
     # ankit_member_1 = Member(name="Ankit Ale", email="anmolankit00@gmail.com")
     # sophia_member_2 = Member(name="Sophia Reed", email="sophia.reed@example.com")
