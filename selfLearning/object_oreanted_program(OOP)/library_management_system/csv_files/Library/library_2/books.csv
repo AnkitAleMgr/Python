@@ -1,0 +1,7 @@
+,Id,Title,Isbn,Available,Library,Borrower
+0,2,Winds of tomorrow,300-400-202,False,Library: City library (ID: 2),Member: Emily clark (Prson ID: 2)
+1,6,The golden compass,300-400-206,False,Library: City library (ID: 2),Member: Sarah davis (Prson ID: 6)
+2,10,Echo in the canyon,300-400-210,False,Library: City library (ID: 2),Member: Sophia adams (Prson ID: 10)
+3,22,The endless hunt,300-400-222,True,Library: City library (ID: 2),
+4,26,Winter's grasp,300-400-226,True,Library: City library (ID: 2),
+5,30,Starbound legacy,300-400-230,True,Library: City library (ID: 2),

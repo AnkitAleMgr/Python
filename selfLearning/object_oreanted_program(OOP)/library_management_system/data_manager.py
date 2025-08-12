@@ -1,6 +1,5 @@
-from ast import main
 import pandas as pd
-import os
+import os, shutil
 
 main_folder_path = os.path.join(os.path.dirname(__file__))
 working_dir_path = os.getcwd()
@@ -8,7 +7,7 @@ working_dir_path = os.getcwd()
 def save_to_csv(data,file_name):
     
     related_path = os.path.relpath(main_folder_path, working_dir_path)
-    related_path = os.path.join(related_path,"csv_files/Library",file_name)
+    related_path = os.path.join(related_path,"csv_files/",file_name)
     # print(related_path)
 # 
     # print(file_name)
@@ -31,8 +30,7 @@ def directory_maker_deleter(no_of_obj : int):
         needed_folder.add(f"library_{i + 1}")
         if not os.path.exists(f"{needed_folder_path}/library_{i+1}"):
             os.mkdir(f"{needed_folder_path}/library_{i+1}")
-            print(f"{needed_folder_path}/library_{i+1} has been created")
-            print()
+
     needed_folder.add("libraries.csv")
 
     # deleting not needed folder
@@ -42,7 +40,7 @@ def directory_maker_deleter(no_of_obj : int):
     for item in unneeded_folder:
         item_path = os.path.join(needed_folder_path, item)
         if os.path.isdir(item_path):
-            os.rmdir(item_path)
+            shutil.rmtree(item_path)
             continue
         if os.path.isfile(item_path):
             os.remove(item_path)

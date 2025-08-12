@@ -1,0 +1,4 @@
+,P.ID,L.ID,Name,Email,Library,L.E.ID
+0,22,2,Anna scott,anna.scott@example.com,Library: City library (ID: 2),1
+1,26,6,Maya lopez,maya.lopez@example.com,Library: City library (ID: 2),2
+2,30,10,Ava johnson,ava.johnson@example.com,Library: City library (ID: 2),3

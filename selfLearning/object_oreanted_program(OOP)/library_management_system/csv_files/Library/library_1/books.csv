@@ -1,1 +1,7 @@
-""
+,Id,Title,Isbn,Available,Library,Borrower
+0,1,The silent river,300-400-201,True,Library: Central library (ID: 1),
+1,5,Midnight echo,300-400-205,False,Library: Central library (ID: 1),Member: David brown (Prson ID: 5)
+2,9,Frozen tides,300-400-209,False,Library: Central library (ID: 1),Member: Ethan harris (Prson ID: 9)
+3,21,The lost voyage,300-400-221,True,Library: Central library (ID: 1),
+4,25,The hidden fortress,300-400-225,True,Library: Central library (ID: 1),
+5,29,Steel tempest,300-400-229,True,Library: Central library (ID: 1),

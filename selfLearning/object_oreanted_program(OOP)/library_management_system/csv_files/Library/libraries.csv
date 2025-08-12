@@ -1,4 +1,5 @@
 ,Id,Name,No of Books,No of Librarians,No of Members
-0,1,United library,3,3,8
-1,2,Oxford library,0,0,0
-2,3,Legex library,0,0,0
+0,1,Central library,6,3,5
+1,2,City library,6,3,5
+2,3,Village library,4,2,5
+3,4,Coastal library,4,2,5
