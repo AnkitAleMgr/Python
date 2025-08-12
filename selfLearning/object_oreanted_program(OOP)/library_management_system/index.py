@@ -77,14 +77,14 @@ class Library:
     _libraries = []
     _free_id = []
     _active_id = 1
-    _emp_active_id = 1
-    _emp_free_id = []
 
     def __init__(self,name : str) -> None:
         self.name = name.capitalize().strip()
         self.books = []
         self.members = []
         self.librarians = []
+        self.emp_active_id = 1
+        self.emp_free_id = []
 
         if Library._free_id:
             self.id = Library._free_id.pop(0)
@@ -133,11 +133,11 @@ class Library:
             return
         self.librarians.append(librarian)
         librarian.library = self
-        if Library._emp_free_id:
-            librarian.employed_id  = Library._emp_free_id.pop(0)
+        if self.emp_free_id:
+            librarian.employed_id  = self.emp_free_id.pop(0)
         else:
-            librarian.employed_id = Library._emp_active_id
-            Library._emp_active_id += 1
+            librarian.employed_id = self.emp_active_id
+            self.emp_active_id += 1
         print(f"{librarian.name} has been added to {self.name}")
 
     def add_book(self, book : Book) -> None:
@@ -269,11 +269,12 @@ class Librarian(Person):
         super().__init__(name, email)
         self.library = None
         self.employed_id = None
+        self.librarian_id = None
 
         if Librarian._librarian_free_id:
-            self.employed_id = Librarian._librarian_free_id.pop(0)
+            self.librarian_id = Librarian._librarian_free_id.pop(0)
         else:
-            self.employed_id = Librarian._librarian_active_id
+            self.librarian_id = Librarian._librarian_active_id
             Librarian._librarian_active_id += 1
         Librarian._librarians.append(self)
 
@@ -310,7 +311,7 @@ class Librarian(Person):
             # "Name" : self.name,
             # "Email" : self.email, 
             "P.ID" : self.person_id,
-            "L.ID" : self.employed_id,
+            "L.ID" : self.librarian_id,
             "Name" : self.name,
             "Email" : self.email, 
             "Library" : self.library,
@@ -391,7 +392,7 @@ class Member(Person):
 # main entry point
 if __name__ == "__main__":
     pass
-    # #region creating library:
+    #region creating library:
     united_library = Library(name= "United library")
     oxford_library = Library(name = "Oxford library")
     Legex_library = Library(name = "legex library")
@@ -404,10 +405,19 @@ if __name__ == "__main__":
     ankit1 = Librarian("ankit","jflajlfa")
     nigga = Librarian("ankit","jflajlfa")
     safal = Librarian("ankit","jflajlfa")
+    jenif = Librarian("ankit","jflajlfa")
+    saurav = Librarian("ankit","jflajlfa")
+    librarian1 = Librarian("ankit","jflajlfa")
+    librarian2 = Librarian("ankit","jflajlfa")
 
     united_library.add_librarian(ankit1)
     united_library.add_librarian(safal)
+    united_library.add_librarian(saurav)
     oxford_library.add_librarian(nigga)
+    oxford_library.add_librarian(jenif)
+    oxford_library.add_librarian(librarian=librarian1)
+    # oxford_library.add_librarian(librarian2)
+    
 
     Librarian.save_librarians_to_csv()
 
