@@ -1,6 +1,6 @@
 from abc import ABC
 from helper import line
-from data_manager import save_to_csv
+from data_manager import save_to_csv, directory_maker_deleter
 from exceptions import BookUnavailableError, InvalidMemberError, NotBookError, AlreadyBelongsToLibraryError
 from validators import is_valid_librarian, is_valid_member, is_valid_book
 
@@ -98,7 +98,7 @@ class Library:
     def save_libraries_to_csv(self) -> None:
         save_to_csv([library.dict_info() for library in Library._libraries], "Library/libraries.csv")
 
-    def del_library(self):
+    def del_library(self) -> None:
         pass
 
     def dict_info(self) -> dict:
@@ -196,37 +196,14 @@ class Library:
     def is_part_of(self, obj : object) -> bool:
         return obj in self.members or obj in self.librarians
 
-    def save_library_detail(self):
-        if self.books:
-            save_to_csv([book.dict_info() for book in self.books], f"book_{self.id}.csv")
-        else:
-            print("No book has been added till now.")
-        if self.members:
-            save_to_csv([member.dict_info() for member in self.members],f"member_{self.id}.csv")
-        else:
-            print("No member has been added till now")
-        if self.librarians:
-            save_to_csv([librarian.dict_info() for librarian in self.librarians], f"librarian_{self.id}.csv")
-        else:
-            print("No librarians has been added till now")
-
-    # def save_books(self) -> None:
-    #     if self.books:
-    #         save_to_csv([book.dict_info() for book in self.books], f"book_{self.id}.csv")
-    #     else:
-    #         print("No book has been added till now.")
-
-    # def save_members(self) ->None:
-    #     if self.members:
-    #         save_to_csv([member.dict_info() for member in self.members],f"member_{self.id}.csv")
-    #     else:
-    #         print("No member has been added till now")
-        
-    # def save_librarians(self) -> None:
-    #     if self.librarians:
-    #         save_to_csv([librarian.dict_info() for librarian in self.librarians], f"librarian_{self.id}.csv")
-    #     else:
-    #         print("No librarians has been added till now")
+    @classmethod
+    def save_library_detail(self) -> None:
+        directory_maker_deleter(len(Library._libraries))
+        for obj in Library._libraries:
+            save_to_csv([book.dict_info() for book in obj.books], f"library_{obj.id}/books.csv")
+            save_to_csv([member.dict_info() for member in obj.members],f"library_{obj.id}/members.csv")
+            save_to_csv([librarian.dict_info() for librarian in obj.librarians], f"library_{obj.id}/librarians.csv")
+            print()
 
 class Person(ABC):
 
@@ -335,7 +312,6 @@ class Member(Person):
             Member._active_id += 1
         Member._members.append(self)
         
-
     def __str__(self) -> str:
         return f"Member: {self.name} (Prson ID: {self.person_id})"
 
@@ -392,32 +368,14 @@ if __name__ == "__main__":
     pass
     #region creating library:
     united_library = Library(name= "United library")
-    oxford_library = Library(name = "Oxford library")
-    Legex_library = Library(name = "legex library")
+    # oxford_library = Library(name = "Oxford library")
+    # c_library = Library(name = "c library")
+    # b_library = Library(name = "b library")
+    # a_library = Library(name = "a library")
     # #endregion
-    
-    book1 = Book(title="The Last Horizon", author="Evelyn Harper", isbn="200-300-101", available=True)
-    book3 = Book(title="The Last Horizon", author="Evelyn Harper", isbn="200-300-101", available=True)
-    book2 = Book(title="The Last Horizon", author="Evelyn Harper", isbn="200-300-101", available=True)
-    
-    ankit1 = Librarian("ankit","jflajlfa")
-    nigga = Librarian("ankit","jflajlfa")
-    safal = Librarian("ankit","jflajlfa")
-    jenif = Librarian("ankit","jflajlfa")
-    saurav = Librarian("ankit","jflajlfa")
-    librarian1 = Librarian("ankit","jflajlfa")
-    librarian2 = Librarian("ankit","jflajlfa")
 
-    united_library.add_librarian(ankit1)
-    united_library.add_librarian(safal)
-    united_library.add_librarian(saurav)
-    oxford_library.add_librarian(nigga)
-    oxford_library.add_librarian(jenif)
-    oxford_library.add_librarian(librarian=librarian1)
-    # oxford_library.add_librarian(librarian2)
-    
+    Library.save_library_detail()
 
-    Librarian.save_librarians_to_csv()
 
     #region creating book:
     # book_1 = Book(title="The Last Horizon", author="Evelyn Harper", isbn="200-300-101", available=True)
