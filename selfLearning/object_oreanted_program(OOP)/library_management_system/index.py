@@ -1,7 +1,8 @@
 from abc import ABC
+from dbm.ndbm import library
 from helper import line
 from data_manager import save_to_csv, directory_maker_deleter
-from exceptions import BookUnavailableError, InvalidMemberError, NotBookError, BookAlreadyBelongsToLibraryError, LibrarianAlreadyBelongsToLibraryError
+from exceptions import InvalidMemberError,InvalidLibrarianError, BookAlreadyBelongsToLibraryError, LibrarianAlreadyBelongsToLibraryError,LibrarianDoesNotBelongsToLibrayError, InvalidBookError, IsNotPartOfLibrary,NotFoundBookInInventory
 from validators import is_valid_librarian, is_valid_member, is_valid_book
 
 def save_all():
@@ -38,8 +39,6 @@ class Book:
 
     @classmethod
     def save_books_to_csv(cls):
-        print()
-        print()
         save_to_csv([book.dict_info() for book in cls._books], "Books/Books.csv")
 
     def del_book(self) -> None:
@@ -57,7 +56,7 @@ class Book:
 
     def add_reserved(self, member : object) -> None:
         if not is_valid_member(member):
-            raise InvalidMemberError(f"No such member found named {member.name}")
+            raise InvalidMemberError(f"{member.name} is not a valid member.")
         self.reserved_list.append(member)
         print(f"{self.title} have bee reserved for {member.name}")
     
@@ -65,7 +64,7 @@ class Book:
         if self.reserved_list:
             next_member = self.reserved_list.pop(0)
             try:
-                next_member.borrow_book(book = self, library = self.library)
+                next_member.borrow_book(book = self)
             except Exception as e:
                 print(f"Failed to lend {self.title} to {next_member.name}: {e}")
                 
@@ -135,11 +134,11 @@ class Library:
         print(f"{member.name} has been added to {self.name}")
 
     def add_librarian(self, librarian : object) -> None:
-        if not isinstance(librarian, Librarian):
-            print("Error: Only Librarian instances can be added.")
+        if not is_valid_librarian(librarian):
+            raise InvalidLibrarianError("'{linrarian} is not Librarian.'")
             return
         if librarian.library is not None:
-            raise LibrarianAlreadyBelongsToLibraryError(f"Librarian {librarian.name} already is already lebrarian of {librarian.library.name}.")
+            raise LibrarianAlreadyBelongsToLibraryError(f"'{librarian.name}' is already lebrarian of Library:{librarian.library.name}.")
         self.librarians.append(librarian)
         librarian.library = self
         if self.emp_free_id:
@@ -150,15 +149,12 @@ class Library:
         print(f"{librarian.name} has been added to {self.name}")
 
     def add_book(self, book : Book) -> None:
-        if is_valid_book(book):
-            if book.library == None:
-                self.books.append(book)
-                book.library = self
-                print(f"{book.title} has been added in {self.name}")
-            else:
-                raise BookAlreadyBelongsToLibraryError(f"This book {book.title} - {book.isbn} is already located to another library {book.library.name}.")
+        if book.library is None:
+            self.books.append(book)
+            book.library = self
+            print(f"{book.title} has been added in {self.name}")
         else:
-            raise NotBookError(f"{book} is not a book.")
+            raise BookAlreadyBelongsToLibraryError(f"This book {book.title} - {book.isbn} is already located to another library {book.library.name}.")
 
     def remove_book(self, book: Book) ->None :
         if book in self.books:
@@ -203,6 +199,9 @@ class Library:
             print("***********************************")
         else:
             print(f"No book found named {name} in {self.name}")
+
+    def is_in_library(self, book:Book) -> bool:
+        return book in self.books
 
     def is_part_of(self, obj : object) -> bool:
         return obj in self.members or obj in self.librarians
@@ -270,14 +269,14 @@ class Librarian(Person):
     def save_librarians_to_csv(self):
         save_to_csv(data= [librarian.dict_info() for librarian in Librarian._librarians], file_name="Librarians/libraians.csv")
 
-    def add_book(self, book: Book, library: Library) -> None:  # noqa: F811
+    def add_book(self, book: Book) -> None:  # noqa: F811
         if is_valid_book(book):
-            if library.is_part_of(self):
-                library.add_book(book)
+            if self.library is None:
+                raise LibrarianDoesNotBelongsToLibrayError(f"{self.name} is not part of any Library.")
             else:
-                print(f"{self.name} is not part of {library.name}.")
+                self.library.add_book(book)
         else:
-            print(f"No book found name {book.title}")
+            raise InvalidBookError(f"'{book}' is not a valid book.")
 
     def remove_book(self, book : Book, library : Library) -> None:
         if library.is_part_of(self):
@@ -325,20 +324,22 @@ class Member(Person):
     def save_members_to_csv(self):
         save_to_csv([member.dict_info() for member in Member._members], file_name= "Members/members.csv")
 
-    def borrow_book(self, book : Book, library : Library) -> None:
-        if not library.is_part_of(self):
-            raise Exception(f"{self.name} is not part of {library.name}")
+    def borrow_book(self, book : Book) -> None:
+        if self.library is None:
+            raise IsNotPartOfLibrary(f"'{self.name}' is not part of any Library")
         if not is_valid_book(book):
-            raise TypeError("borrow_book expects a Book object")
+            raise InvalidBookError("'{book}' is not a valid Book.")
+        if not self.library.is_in_library(book):
+            raise NotFoundBookInInventory(f"'{book.title}' cannot be found in inventory. Might be in other Library.")
         if book.available:
             self.borrowed_book.append(book)
             book.available = False
-            book.library = library
+            book.library = self.library
             book.borrower = self
             print(f"{book.title} has been borrowed by {self.name}")
         else:
             book.add_reserved(self)
-            # raise BookUnavailableError(f"{book.title} is not available, added to reserve list.")
+            print(f"{book.title} is not available, {self.name} has been added to reserve list.")
 
     def return_book(self, book : Book) -> None:
         if book not in self.borrowed_book:
@@ -381,7 +382,8 @@ if __name__ == "__main__":
     library1.add_librarian(librarian1)
     library2.add_librarian(librarian2)
 
-    librarian1.add_book(book=book, library= library1)
+    librarian1.add_book(book=book)
+    
 
 # main entry point
 # if __name__ == "__main__":
