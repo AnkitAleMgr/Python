@@ -7,6 +7,8 @@ class InvalidMemberError(Exception):
     pass
 class InvalidLibrarianError(Exception):
     pass
+class InvalidLibraryError(Exception):
+    pass
 class BookAlreadyBelongsToLibraryError(Exception):
     pass
 class LibrarianAlreadyBelongsToLibraryError(Exception):
@@ -14,4 +16,12 @@ class LibrarianAlreadyBelongsToLibraryError(Exception):
 class LibrarianDoesNotBelongsToLibrayError(Exception):
     pass
 class NotFoundBookInInventory(Exception):
+    pass
+class HasNotBorrowedBookError(Exception):
+    pass
+class KeyNotFountError(Exception):
+    pass
+class EmptyUpdateDetailError(Exception):
+    pass
+class MemberNotPartOfLibraryError(Exception):
     pass

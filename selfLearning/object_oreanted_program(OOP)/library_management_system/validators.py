@@ -12,5 +12,8 @@ def is_valid_member(obj) -> bool:
     # return isinstance(obj, Member)
     return obj.__class__.__name__ == "Member"
 
+def is_valid_library(obj) -> bool:
+    return obj.__class__.__name__ == "Library"
+
 if __name__ == "__main__":
     pass

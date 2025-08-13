@@ -1,9 +1,9 @@
 from abc import ABC
-from dbm.ndbm import library
+from turtle import title
 from helper import line
 from data_manager import save_to_csv, directory_maker_deleter
-from exceptions import InvalidMemberError,InvalidLibrarianError, BookAlreadyBelongsToLibraryError, LibrarianAlreadyBelongsToLibraryError,LibrarianDoesNotBelongsToLibrayError, InvalidBookError, IsNotPartOfLibrary,NotFoundBookInInventory
-from validators import is_valid_librarian, is_valid_member, is_valid_book
+from exceptions import InvalidLibraryError,InvalidMemberError,InvalidLibrarianError, BookAlreadyBelongsToLibraryError, LibrarianAlreadyBelongsToLibraryError,LibrarianDoesNotBelongsToLibrayError, InvalidBookError, IsNotPartOfLibrary,NotFoundBookInInventory, HasNotBorrowedBookError, KeyNotFountError, EmptyUpdateDetailError, MemberNotPartOfLibraryError
+from validators import is_valid_librarian, is_valid_member, is_valid_book, is_valid_library
 
 def save_all():
     Book.save_books_to_csv()
@@ -26,7 +26,6 @@ class Book:
         self.reserved_list = []
         self.library = None
         self.borrower = None
-
         if Book._free_id:
             self.id = Book._free_id.pop(0)
         else:
@@ -108,9 +107,25 @@ class Library:
     def save_libraries_to_csv(self) -> None:
         save_to_csv([library.dict_info() for library in Library._libraries], "Library/libraries.csv")
 
-    def del_library(self) -> None:
-        pass
-
+    @classmethod
+    def del_library(cls, library: object) -> None:
+        if not is_valid_library(library):
+            raise InvalidLibraryError(f"'{library}' is not a valid Library.")
+        Library._libraries.remove(library)
+        library.books = None
+        library.members = None
+        library.libraria = None
+        # removing library form books
+        for book in Book._books:
+            if book.library is library:
+                book.library = None
+        # removeing library form librarian
+        for libraraian in Librarian._librarians:
+            if libraraian.library is library:
+                libraraian.library = None
+        print(f"Library '{library.name}' has been deleted.")
+        del library
+        
     def dict_info(self) -> dict:
         return {
             "Id" : self.id,
@@ -122,8 +137,7 @@ class Library:
 
     def add_member(self, member : object) -> None:
         if not isinstance(member, Member):
-            print("Error: Only Member instances can be added.")
-            return
+            raise InvalidMemberError(f"'{member}' is not a valid Member.")
         self.members.append(member)
         if self.library_free_member_id:
             member.library_member_id = self.library_free_member_id.pop(0)
@@ -133,10 +147,17 @@ class Library:
         member.library = self
         print(f"{member.name} has been added to {self.name}")
 
+    def remove_member(self, member : object) -> None:
+        if not is_valid_member(member):
+            raise InvalidMemberError(f"'{member}' is not a valid member.")
+        if not self.is_part_of(member):
+            raise MemberNotPartOfLibraryError(f"'{member.name}' is not part of {self.name}.")
+        self.members.remove(member)
+        print(f"{member.name} has been removed for Library {self.name}.")
+
     def add_librarian(self, librarian : object) -> None:
         if not is_valid_librarian(librarian):
             raise InvalidLibrarianError("'{linrarian} is not Librarian.'")
-            return
         if librarian.library is not None:
             raise LibrarianAlreadyBelongsToLibraryError(f"'{librarian.name}' is already lebrarian of Library:{librarian.library.name}.")
         self.librarians.append(librarian)
@@ -148,7 +169,19 @@ class Library:
             self.emp_active_id += 1
         print(f"{librarian.name} has been added to {self.name}")
 
+    def delete_librarian(self, librarian: object) -> None:
+        if not is_valid_librarian(librarian):
+            raise InvalidLibrarianError(f"'{librarian}' is not a valid Librarian.")
+        if not self.is_part_of(librarian):
+            raise LibrarianDoesNotBelongsToLibrayError(f"'{librarian.name}' is not part of Library: {self.name}.")
+        self.librarians.remove(librarian)
+        librarian.library = None
+        librarian.employed_id = None
+        print(f"'{librarian.name}' has been removed for Library: {self.name}")
+
     def add_book(self, book : Book) -> None:
+        if not is_valid_book(book):
+            raise InvalidBookError(f"'{book}' is not a book.")
         if book.library is None:
             self.books.append(book)
             book.library = self
@@ -157,12 +190,14 @@ class Library:
             raise BookAlreadyBelongsToLibraryError(f"This book {book.title} - {book.isbn} is already located to another library {book.library.name}.")
 
     def remove_book(self, book: Book) ->None :
+        if not is_valid_book(book):
+            raise InvalidBookError(f"'{book}' is not a book.")
         if book in self.books:
             self.books.remove(book)
             book.library = None
             print(f"{book.title} has been removed from {self.name}.")
         else:
-            print(f"No book found name {book.title} in library {self.name}.")
+            raise NotFoundBookInInventory(f"'{book.title}' not fount in inventory.")
 
     def list_all_book(self) -> None:
         if not self.books:
@@ -229,19 +264,19 @@ class Person(ABC):
             Person._person_active_id += 1
         
     def display_info(self) -> None:
-        print("ID:",self.id)
+        print("ID:",self.person_id)
         print("Name:",self.name)
         print("Email:",self.email)
 
     def update_detail(self, **kwargs) -> None:
         if not kwargs:
-            print("Please send some detail to chanage")
+            raise EmptyUpdateDetailError("Please send some detail to chanage")
             return
         for key, value in kwargs.items():
             if value is not None and hasattr(self, key):
                 setattr(self, key, value)
             else:
-                print(f"Warning: Attribute '{key}' not found or value is None.")
+                raise KeyNotFountError(f"'{key}' not fount.")
 
 class Librarian(Person):
     
@@ -263,7 +298,7 @@ class Librarian(Person):
         Librarian._librarians.append(self)
 
     def __str__(self) -> str:
-        return f"Name: {self.name} (Id: {self.id})"
+        return f"Name: {self.name} (Id: {self.librarian_id})"
 
     @classmethod
     def save_librarians_to_csv(self):
@@ -273,20 +308,32 @@ class Librarian(Person):
         if is_valid_book(book):
             if self.library is None:
                 raise LibrarianDoesNotBelongsToLibrayError(f"{self.name} is not part of any Library.")
-            else:
+            if self.library.is_part_of(self):
                 self.library.add_book(book)
+            else:
+                raise LibrarianDoesNotBelongsToLibrayError(f"'{self.name}' doesnt belong to this library to add books.")
         else:
             raise InvalidBookError(f"'{book}' is not a valid book.")
 
-    def remove_book(self, book : Book, library : Library) -> None:
-        if library.is_part_of(self):
-            library.remove_book(book)
-
-    def view_all_book(self, library : Library) -> None:
-        if library.is_part_of(self):
-            library.list_available_book()
+    def remove_book(self, book : Book) -> None:
+        if self.library is None:
+            raise LibrarianDoesNotBelongsToLibrayError(f"'{self.name} deos not belong to any library.'")
+        if not self.library.is_part_of(self):
+            raise IsNotPartOfLibrary(f"'{self.name}' is not part of {self.library}.")
+        if book in self.library.books:
+            self.library.remove_book(book)
         else:
-            print(f"{self.name} is not part of {library.name}")
+            raise NotFoundBookInInventory(f"'{book.title, book.isbn}'not fount in inventory to remove form library. ")
+
+    def view_all_book(self) -> None:
+        if self.library is None:
+            raise LibrarianDoesNotBelongsToLibrayError(f"'{self.name} deos not belong to any library.'")
+        if not self.library.is_part_of(self):
+            raise IsNotPartOfLibrary(f"'{self.name}' is not part of {self.library}.")
+        if self.library.books():
+            self.library.list_all_book()
+        else:
+            print("No Book has been added till now")
         
     def dict_info(self) -> dict:
         return {
@@ -343,8 +390,7 @@ class Member(Person):
 
     def return_book(self, book : Book) -> None:
         if book not in self.borrowed_book:
-            print(f"{self.name} hasn't borrowed a book name {book.title} to return.")   
-            return
+            raise HasNotBorrowedBookError(f"{self.name} hasn't borrowed a book name {book.title} to return.")   
         self.borrowed_book.remove(book)
         book.available = True
         book.borrower = None
@@ -375,14 +421,15 @@ if __name__ == "__main__":
     library2 = Library(name="saurav")
 
     book = Book(title="book", author="saureav",isbn="12321", available=True)
+    book2 = Book(title="book", author="saureav",isbn="12321", available=True)
 
     librarian1 = Librarian("ankit","fasfaf")
     librarian2 = Librarian("ankit","fasfaf")
 
     library1.add_librarian(librarian1)
     library2.add_librarian(librarian2)
-
     librarian1.add_book(book=book)
+
     
 
 # main entry point
@@ -505,9 +552,9 @@ if __name__ == "__main__":
 #     line()
 #     #region assign books to libraries via librarians:
 #     for i, book in enumerate(books):
-#         assigned_lib = [library_1, library_2, library_3, library_4][i % 4]
+#         # assigned_lib = [library_1, library_2, library_3, library_4][i % 4]
 #         librarian = librarians[i % len(librarians)]
-#         librarian.add_book(book, assigned_lib)
+#         librarian.add_book(book)
 
 #     # for i, book in enumerate(books):
 #     #     assigned_lib = [library_1, library_2, library_3, library_4][i % 4]
@@ -532,7 +579,7 @@ if __name__ == "__main__":
 #     ]
 
 #     for m, b, l in borrow_ops:
-#         m.borrow_book(b, l)
+#         m.borrow_book(b)
 #     #endregion
 
 #     # =======================================================================
@@ -563,6 +610,7 @@ if __name__ == "__main__":
 #     library_2.list_available_book()
 #     library_3.list_available_book()
 #     library_4.list_available_book()
+
 #     #endregion
 
 #     # =======================================================================
