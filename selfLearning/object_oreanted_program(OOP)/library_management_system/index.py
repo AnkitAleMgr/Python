@@ -136,15 +136,16 @@ class Library:
         }
 
     def add_member(self, member : object) -> None:
+        id = None
         if not isinstance(member, Member):
             raise InvalidMemberError(f"'{member}' is not a valid Member.")
         self.members.append(member)
         if self.library_free_member_id:
-            member.library_member_id = self.library_free_member_id.pop(0)
+            id = self.library_free_member_id.pop(0)
         else:
-            member.library_member_id = self.library_active_member_id
+            id = self.library_active_member_id
             self.library_active_member_id += 1
-        member.library = self
+        member.library_and_id.append((id, self))
         print(f"{member.name} has been added to {self.name}")
 
     def remove_member(self, member : object) -> None:
@@ -153,6 +154,10 @@ class Library:
         if not self.is_part_of(member):
             raise MemberNotPartOfLibraryError(f"'{member.name}' is not part of {self.name}.")
         self.members.remove(member)
+        for index,i in enumerate(member.library_and_id):
+            if i[1] is self:
+                print("faffsa")
+                del member.library_and_id[index]
         print(f"{member.name} has been removed for Library {self.name}.")
 
     def add_librarian(self, librarian : object) -> None:
@@ -354,8 +359,8 @@ class Member(Person):
     def __init__(self, name: str, email: str) -> None:
         super().__init__(name, email)
         self.borrowed_book = []
-        self.library = None
-        self.library_member_id = None
+        self.library_and_id = []
+        # self.library_member_id = 
         
         if Member._free_id:
             self.member_id = Member._free_id.pop(0)
@@ -423,12 +428,19 @@ if __name__ == "__main__":
     book = Book(title="book", author="saureav",isbn="12321", available=True)
     book2 = Book(title="book", author="saureav",isbn="12321", available=True)
 
-    librarian1 = Librarian("ankit","fasfaf")
-    librarian2 = Librarian("ankit","fasfaf")
+    member1 = Member('anit',"fafa")
+    
+    library1.add_member(member1)
+    library2.add_member(member1)
 
-    library1.add_librarian(librarian1)
-    library2.add_librarian(librarian2)
-    librarian1.add_book(book=book)
+    
+    library1.remove_member(member1)
+
+    print(member1.library_and_id)
+    library1.add_member(member1)
+
+    print(member1.library_ancd_id)
+
 
     
 
