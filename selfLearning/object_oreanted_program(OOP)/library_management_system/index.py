@@ -1,8 +1,10 @@
 from abc import ABC
+from enum import member
+from re import L
 from turtle import title
 from helper import line
 from data_manager import save_to_csv, directory_maker_deleter
-from exceptions import InvalidLibraryError,InvalidMemberError,InvalidLibrarianError, BookAlreadyBelongsToLibraryError, LibrarianAlreadyBelongsToLibraryError,LibrarianDoesNotBelongsToLibrayError, InvalidBookError, IsNotPartOfLibrary,NotFoundBookInInventory, HasNotBorrowedBookError, KeyNotFountError, EmptyUpdateDetailError, MemberNotPartOfLibraryError
+from exceptions import InvalidLibraryError,InvalidMemberError,InvalidLibrarianError, BookAlreadyBelongsToLibraryError, LibrarianAlreadyBelongsToLibraryError,LibrarianDoesNotBelongsToLibrayError, InvalidBookError, IsNotPartOfLibrary,NotFoundBookInInventory, HasNotBorrowedBookError, KeyNotFountError, EmptyUpdateDetailError, MemberNotPartOfLibraryError, MemberIsAlreadyPartOfLibrary
 from validators import is_valid_librarian, is_valid_member, is_valid_book, is_valid_library
 
 def save_all():
@@ -63,7 +65,7 @@ class Book:
         if self.reserved_list:
             next_member = self.reserved_list.pop(0)
             try:
-                next_member.borrow_book(book = self)
+                next_member.borrow_book(book = self, library= book.library)
             except Exception as e:
                 print(f"Failed to lend {self.title} to {next_member.name}: {e}")
                 
@@ -135,10 +137,14 @@ class Library:
             "No of Members" : len(self.members) if self.members else 0,
         }
 
+# MemberIsAlreadyPartOfLibrary
     def add_member(self, member : object) -> None:
         id = None
         if not isinstance(member, Member):
             raise InvalidMemberError(f"'{member}' is not a valid Member.")
+        for _, lib in member.library_and_id:
+            if lib is self:
+                raise MemberIsAlreadyPartOfLibrary(f"'{member.name}' is already member of {self.name}.")
         self.members.append(member)
         if self.library_free_member_id:
             id = self.library_free_member_id.pop(0)
@@ -156,7 +162,8 @@ class Library:
         self.members.remove(member)
         for index,i in enumerate(member.library_and_id):
             if i[1] is self:
-                print("faffsa")
+                self.library_free_member_id.append(i[0])
+                # print(self.library_free_member_id)
                 del member.library_and_id[index]
         print(f"{member.name} has been removed for Library {self.name}.")
 
@@ -373,20 +380,34 @@ class Member(Person):
         return f"Member: {self.name} (Prson ID: {self.person_id})"
 
     @classmethod
+    def del_member(self, member : object) -> None:
+        if not is_valid_member(member):
+            raise InvalidMemberError(f"'{member}' is not a vlaid Member.")
+        Member._members.remove(member)
+        all_library_list = [b for a, b  in member.library_and_id]
+        for x in all_library_list:
+            x.remove_member(member)
+        print(member.borrowed_book)
+        for x in member.borrowed_book:
+            # print(x.title)
+            member.return_book(x)
+
+    @classmethod
     def save_members_to_csv(self):
         save_to_csv([member.dict_info() for member in Member._members], file_name= "Members/members.csv")
 
-    def borrow_book(self, book : Book) -> None:
-        if self.library is None:
+    def borrow_book(self, book : Book, library: Library) -> None:
+        all_library_list = [b for a, b  in self.library_and_id]
+        if library not in all_library_list:
             raise IsNotPartOfLibrary(f"'{self.name}' is not part of any Library")
         if not is_valid_book(book):
             raise InvalidBookError("'{book}' is not a valid Book.")
-        if not self.library.is_in_library(book):
+        if not library.is_in_library(book):
             raise NotFoundBookInInventory(f"'{book.title}' cannot be found in inventory. Might be in other Library.")
         if book.available:
             self.borrowed_book.append(book)
             book.available = False
-            book.library = self.library
+            book.library = library
             book.borrower = self
             print(f"{book.title} has been borrowed by {self.name}")
         else:
@@ -424,25 +445,30 @@ class Member(Person):
 if __name__ == "__main__":
     library1 = Library(name="united")
     library2 = Library(name="saurav")
+    library3 = Library(name="nigga")
 
-    book = Book(title="book", author="saureav",isbn="12321", available=True)
-    book2 = Book(title="book", author="saureav",isbn="12321", available=True)
+    book = Book(title="book1", author="saureav",isbn="12321", available=True)
+    book2 = Book(title="book2", author="saureav",isbn="12321", available=True)
 
-    member1 = Member('anit',"fafa")
-    
-    library1.add_member(member1)
-    library2.add_member(member1)
+    library1.add_book(book=book)
+    library1.add_book(book=book2)
 
-    
-    library1.remove_member(member1)
-
-    print(member1.library_and_id)
+    line()
+    member1 = Member("member1", "fdaf")
     library1.add_member(member1)
 
-    print(member1.library_ancd_id)
+    line()
+    member1.borrow_book(book, library1)
+    member1.borrow_book(book2, library1)
+    print(book, book2)
+
+    line()
+    Member.del_member(member1)
+    # print(book, book2)
 
 
-    
+
+
 
 # main entry point
 # if __name__ == "__main__":

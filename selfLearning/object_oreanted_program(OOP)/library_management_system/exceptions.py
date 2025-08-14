@@ -25,3 +25,5 @@ class EmptyUpdateDetailError(Exception):
     pass
 class MemberNotPartOfLibraryError(Exception):
     pass
+class MemberIsAlreadyPartOfLibrary(Exception):
+    pass
