@@ -1,4 +1,5 @@
 
+
 def program(s1, s2, s3):
     temp_variable = ""
     for i in range(max(len(s1), len(s2))):
