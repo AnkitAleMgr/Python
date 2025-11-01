@@ -3,6 +3,7 @@ import requests, os
 
 line_length = 138
 
+# quality function 
 def line():
     print("-" * line_length)
 def custom_input(promp):
@@ -11,6 +12,8 @@ def custom_input(promp):
     if ans in EXIT_WORD:
         exit()
     return ans
+
+# necessery functions
 def show_create_profile_and_return_selected_profile():
 
     # geting current, user_date folder direction
@@ -71,14 +74,25 @@ def show_create_profile_and_return_selected_profile():
         return profile_list[selected_profile -1]
         # endregion
 
-def game(profile):
-    game_mods_and_options = ("Play", "Setting", "History", "Profile", "Quit")
-    
-    # region locking the user choice profile:
-    if profile != "guest":
-        
-    # endregion
+# mods functions
+def play(path):
+    print(path)
+def setting():
+    pass
+def history():
+    pass
+def view_profile():
+    pass
 
+def game(profile):
+    game_mods_and_options = ("Play", "Setting", "History", "View Profile", "Quit")
+    
+    # region locking the user choice profile path:
+    if profile != "guest":
+        user_profile_path  = os.path.dirname(__file__) + "/test_folder"+ f"/{profile}"
+    else:
+        user_profile_path = None
+    # endregion
 
     # region Displaying all the available game mods and options:
     print("Welcome to Hang-Man")
@@ -87,13 +101,37 @@ def game(profile):
         print(f"    {index}) {option}")
     # endregion
     line()
-    # region asking for user profile:
-    custom_input(f"Enter your Choice (1-{len(game_mods_and_options)}): ")
+    # region asking for user game mods and proper validation checking:
+    while True:
+        try:
+            choice = int(custom_input(f"Enter your Choice (1-{len(game_mods_and_options)}): "))
+            if 1 <= choice <= len(game_mods_and_options):
+                break
+            else:
+               print("Invalid option") 
+        except ValueError:
+            print("Invalid option")
+        
     # endregion
     line()
+    
+    # region executing proper function according to user mods
+    if choice == 1:
+        play(user_profile_path)
+    elif choice == 2:
+        setting()
+    elif choice == 3:
+        history()
+    elif choice == 4:
+        view_profile()
+    else:
+        exit()
+    # endregion
+
 
 def main():
-    profile = show_create_profile_and_return_selected_profile()
+    # profile = show_create_profile_and_return_selected_profile()
+    profile = "profile1"
     game(profile)
 
 # Entry point
