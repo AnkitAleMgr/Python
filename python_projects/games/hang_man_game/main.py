@@ -77,6 +77,8 @@ def show_create_profile_and_return_selected_profile():
 # mods functions
 def play(path):
     print(path)
+    
+
 def setting():
     pass
 def history():
