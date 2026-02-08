@@ -1,4 +1,3 @@
-from curses.ascii import isdigit
 import requests, os
 
 line_length = 138
@@ -16,6 +15,7 @@ def custom_input(promp):
 # necessery functions
 def show_create_profile_and_return_selected_profile():
 
+    print("It came up to here")
     # geting current, user_date folder direction
     current_dir = os.path.dirname(__file__)
     user_data_dir = current_dir + "/test_folder" # + "/user_data"
@@ -77,8 +77,6 @@ def show_create_profile_and_return_selected_profile():
 # mods functions
 def play(path):
     print(path)
-    
-
 def setting():
     pass
 def history():
@@ -89,6 +87,7 @@ def view_profile():
 def game(profile):
     game_mods_and_options = ("Play", "Setting", "History", "View Profile", "Quit")
     
+    print("It came up to here 2")
     # region locking the user choice profile path:
     if profile != "guest":
         user_profile_path  = os.path.dirname(__file__) + "/test_folder"+ f"/{profile}"
@@ -98,6 +97,7 @@ def game(profile):
 
     # region Displaying all the available game mods and options:
     print("Welcome to Hang-Man")
+    print("It came up to here ")
     line()
     for index,option in enumerate(game_mods_and_options, start= 1):
         print(f"    {index}) {option}")
@@ -133,8 +133,9 @@ def game(profile):
 
 def main():
     # profile = show_create_profile_and_return_selected_profile()
-    profile = "profile1"
-    game(profile)
+    # profile = "profile1"
+    # game(profile)
+    pass
 
 # Entry point
 if __name__ == "__main__":
